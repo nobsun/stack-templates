@@ -571,9 +571,8 @@ if type "add-entry" > /dev/null 2>&1; then
   add-entry $1
 else 
   stack install {{name}}:exe:add-entry
+  add-entry $1
 fi
-
-echo "ここまで来た"
 
 echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
 
