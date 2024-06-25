@@ -21,13 +21,17 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/{{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}#readme>
 
 dependencies:
+- base >= 4.7 && < 5
+- utf8-string
+- unicode-show
+- hspec
+- main-tester
 - Cabal
 - Cabal-syntax
 - QuickCheck
 - adjunctions
 - array
 - attoparsec
-- base
 - bifunctors
 - binary
 - bitvec
@@ -44,7 +48,7 @@ dependencies:
 - filepath
 - free
 - ghc-bignum
-# - ghc-boot-th
+- ghc-boot-th
 - ghc-prim
 - hashable
 - heaps
@@ -127,6 +131,14 @@ library:
   source-dirs: src
 
 executables:
+  add-entry:
+    main:                Main.hs
+    source-dirs:         app/add-entry
+    ghc-options:
+    - -rtsopts
+    dependencies
+    - {{name}}
+
   {{name}}:
     main:                Main.hs
     source-dirs:         app
@@ -452,6 +464,66 @@ trace | debug     = Debug.trace
 tracing :: Show a => a -> a
 tracing = trace . show <*> id
 
+{-# START_FILE app/add-entry/Main.hs #-}
+module Main where
+
+import Data.Char
+import Data.List
+import System.Directory
+import System.Environment
+import System.FilePath
+import System.IO
+
+main :: IO ()
+main = do
+    { pr <- getProgName
+    ; as <- getArgs
+    ; pj <- takeBaseName <$> getCurrentDirectory
+    ; case as of
+        ex:_ -> proc pj ex
+        _    -> usage pr
+    }
+
+proc :: FilePath -> FilePath -> IO ()
+proc pj ex = do
+    { let
+        { normex   = toLower <$> ex
+        ; execdir  = "app" </> normex
+        ; from     = "app" </> "Main.hs"
+        ; to       = execdir </> "Main.hs"
+        }
+    ; createDirectory execdir
+    ; copyFile from to
+    ; insEntry pj normex
+    }
+
+insEntry :: String -> String -> IO ()
+insEntry pj ex = do
+    { ls <- lines <$> readFile "package.yaml"
+    ; case break ("executables:" `isPrefixOf`) ls of
+        (xs,ys) -> do
+            { writeFile "tmp.yaml" $ unlines $ xs ++ [head ys] ++ entries pj ex ++ tail ys
+            ; renameFile "tmp.yaml" "package.yaml"
+            }
+    }
+
+entries :: String -> String -> [String]
+entries pj ex = 
+    [ "  " ++ ex ++ ":"
+    , "    main:               Main.hs"
+    , "    source-dirs:        app/" ++ ex
+    , "    ghc-options:"
+    , "    - -rtsopts"
+    , "    dependencies:"
+    , "    - " ++ pj
+    , ""
+    ]
+
+usage :: String -> IO ()
+usage pr = hPutStrLn stderr msg
+    where
+        msg = "Usage: " ++ pr ++ " <entry-name>"
+
 {-# START_FILE README.md #-}
 # {{name}}
 
@@ -495,7 +567,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {-# START_FILE setting #-}
 #!/bin/bash
 
-entr $1
+if type "add-entry" > /dev/null 2>&1; then
+  add-entry $1
+else 
+  stack install {{name}}:exe:add-entry
+fi
+
 echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
 
 stack build {{name}}:exe:$1
@@ -524,9 +601,7 @@ stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 dist-new/
 {{name}}.cabal
 *.log
-.curproj
 .curname
-!programming_session.log
 core
 *.hi
 *.o
@@ -541,41 +616,3 @@ import Text.Show.Unicode
 :set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
 :set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
 :set -XImplicitParams -XNoFieldSelectors -XDuplicateRecordFields -XOverloadedRecordDot
-:set editor code
-
-{-# START_FILE doc/markdown/marp-header.yaml #-}
----
-marp: true
-style: |
-  section {
-    font-family: 'Migu 1C';
-  }
-  p br {
-    display: none;
-  }
-  code, pre {
-    font-family: 'HackGen Console NF';
-  }
-  li {
-    font-size: 90%;
-  }
-  table {
-    font-size: 15px;
-  }
-  div.mermaid {
-    all: unset;
-  }
-theme: default
-paginate: true
-math: katex
----
-
-{-# START_FILE doc/markdown/mermaid.html #-}
-<div class="mermaid>
-</div>
-
-<script type="module">
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.0.0/dist/mermaid.esm.min.mjs';
-mermaid.initialize({ startOnLoad: true });
-window.addEventListener('vscode.markdown.updateContent', function() { mermaid.init() });
-</script>
