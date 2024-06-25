@@ -136,7 +136,7 @@ executables:
     source-dirs:         app/add-entry
     ghc-options:
     - -rtsopts
-    dependencies
+    dependencies:
     - {{name}}
 
   {{name}}:
