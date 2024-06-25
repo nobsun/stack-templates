@@ -1,6 +1,6 @@
 # stack-templates
 
-- [x] novisteps: NoviSteps用
+- [ ] novisteps: NoviSteps用
     - 使い方例
         ```
         $ stack new NoviSteps11Q nobsun/novisteps

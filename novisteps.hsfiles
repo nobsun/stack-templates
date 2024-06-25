@@ -573,6 +573,8 @@ else
   stack install {{name}}:exe:add-entry
 fi
 
+echo "ここまで来た"
+
 echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
 
 stack build {{name}}:exe:$1
