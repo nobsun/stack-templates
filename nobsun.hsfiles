@@ -33,6 +33,8 @@ dependencies:
 - gloss
 - array
 - containers
+- prettyprinter
+- mtl
 - free
 - recursion-schemes
 - vector
@@ -397,3 +399,8 @@ import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.0.0/dist/mermaid.es
 mermaid.initialize({ startOnLoad: true });
 window.addEventListener('vscode.markdown.updateContent', function() { mermaid.init() });
 </script>
+
+{-# START_FILE ChangeLog.md #-}
+# Changelog for {{name}}
+
+## Unreleased changes
