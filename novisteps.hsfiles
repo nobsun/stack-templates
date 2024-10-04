@@ -325,6 +325,10 @@ class InterfaceForOJS a where
     encode :: [[a]] -> B.ByteString
     encode = B.unlines . map showBs
 
+instance InterfaceForOJS B.ByteString where
+    readB = id
+    showB = id
+
 instance InterfaceForOJS Int where
     readB = readInt
     showB = showInt
