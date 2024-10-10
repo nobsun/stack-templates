@@ -139,6 +139,14 @@ executables:
     dependencies:
     - {{name}}
 
+  judge-hs:
+    main:                Main.hs
+    source-dirs:         app/judge-hs
+    ghc-options:
+    - -rtsopts
+    dependencies:
+    - {{name}}
+
   {{name}}:
     main:                Main.hs
     source-dirs:         app
@@ -367,6 +375,21 @@ showDbl = B.pack . show
 
 {- Bonsai -}
 
+{- debug -}
+trace :: String -> a -> a
+trace | debug     = Debug.trace
+      | otherwise = const id
+
+tracing :: Show a => a -> a
+tracing = trace . show <*> id
+
+{- error -}
+impossible :: a
+impossible = error "impossible"
+
+invalid :: a
+invalid = error "invalid input"
+
 {- |
 >>> combinations 2 "abcd"
 ["ab","ac","ad","bc","bd","cd"]
@@ -453,21 +476,6 @@ countif = iter 0
         iter a p (x:xs) = iter (bool a (succ a) (p x)) p xs
         iter a _ []     = a
 
-{- error -}
-impossible :: a
-impossible = error "impossible"
-
-invalid :: a
-invalid = error "invalid input"
-
-{- debug -}
-trace :: String -> a -> a
-trace | debug     = Debug.trace
-      | otherwise = const id
-
-tracing :: Show a => a -> a
-tracing = trace . show <*> id
-
 {-# START_FILE app/add-entry/Main.hs #-}
 module Main where
 
@@ -527,6 +535,50 @@ usage :: String -> IO ()
 usage pr = hPutStrLn stderr msg
     where
         msg = "Usage: " ++ pr ++ " <entry-name>"
+
+{-# START_FILE app/judge-hs/Main.hs #-}
+module Main where
+
+import qualified Data.ByteString.Char8 as B
+import Data.Bool ( bool )
+import Data.List ( sort, isSuffixOf )
+import Data.Time ( diffUTCTime, getCurrentTime )
+import System.Environment ( getArgs, getProgName )
+import System.Directory ( listDirectory )
+import System.FilePath ( (</>), isExtensionOf, takeFileName )
+import System.IO ( hGetContents )
+import System.Process
+    ( createProcess,
+      shell,
+      CreateProcess(std_out),
+      StdStream(CreatePipe) )
+
+main :: IO ()
+main = do
+    probid:projid:_ <- getArgs
+    fs <- sort . filter (isExtensionOf "txt") 
+            <$> listDirectory ("test" </> "case" </> probid </> "in")
+    let ins  = map (("test" </>) . ("case" </>) . (probid </>) . ("in" </>)) fs
+    let outs = map (("test" </>) . ("case" </>) . (probid </>) . ("out" </>)) fs
+    loop projid ins outs
+
+loop :: String -> [FilePath] -> [FilePath] -> IO ()
+loop _   []     _      = return ()
+loop cmd (i:is) (o:os) = do
+    start <- getCurrentTime
+    cp@(_, Just hout, _, _)
+            <- createProcess 
+                (shell ("stack exec " ++ cmd 
+                 -- ++ " +RTS -p -RTS"
+                 ++ " < " ++ i))
+                { std_out = CreatePipe }
+    out0 <- B.hGetContents hout
+    out1 <- B.filter (/= '\r') <$> B.readFile o
+    let msg = bool "WA" "AC" (out0 == out1)
+    putStr (takeFileName i ++ ": " ++ msg ++ " : ")
+    end <- getCurrentTime
+    print (diffUTCTime end start)
+    loop cmd is os
 
 {-# START_FILE README.md #-}
 # {{name}}
@@ -606,6 +658,18 @@ stack exec -- $CURRENT_STACK_EXE_ENTRY
 
 source .curname
 stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
+
+{-# START_FILE checking #-}
+#!/bin/bash
+
+if type "judge-hs" > /dev/null 2>&1; then
+  :
+else 
+  stack install {{name}}:exe:judge-hs
+fi
+
+source .curname
+stack exec -- judge-hs $1 $CURRENT_ATCODER_EXE_ENTRY
 
 {-# START_FILE .gitignore #-}
 .stack-work/
