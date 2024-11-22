@@ -239,7 +239,7 @@ main = doctest ["src/Lib.hs"]
 module Main where
 
 import System.Environment
-import Debug.Trace
+import Debug.Trace qualified as Debug
 
 main :: IO ()
 main = do
