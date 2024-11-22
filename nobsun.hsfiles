@@ -30,17 +30,23 @@ dependencies:
 - main-tester
 - doctest
 - aeson
-- gloss
 - array
 - containers
-- prettyprinter
-- mtl
+- extra
+- fgl
 - free
+- gloss
+- hmatrix
+- mtl
 - recursion-schemes
+- split
+- text
 - vector
 - directory
+- exceptions
 - filepath
-- split
+- process
+- stm
 
 language: GHC2021
 
@@ -57,6 +63,7 @@ default-extensions:
 - NoStarIsType
 - TypeFamilyDependencies
 - UndecidableInstances
+- CPP
 
 ghc-options:
 - -Wall
@@ -139,12 +146,12 @@ main = defaultMain
 {-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
+{-# LANGUAGE CPP #-}
 module Lib
     ( someFunc
     ) where
 
 -- ## `doctest`のための記述と定義本体
-
 {- | 
 「なんか関数」を標準出力に印字する
 >>> someFunc
@@ -166,6 +173,7 @@ someFunc = putStrLn "なんか関数"
 {-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
+{-# LANGUAGE CPP #-}
 module LibSpec
   ( spec
   ) where
@@ -209,6 +217,7 @@ spec = describe "someFunc" $ do
 {-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
+{-# LANGUAGE CPP #-}
 module Main where
 
 import Test.DocTest
@@ -226,23 +235,51 @@ main = doctest ["src/Lib.hs"]
 {-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
+{-# LANGUAGE CPP #-}
 module Main where
 
 import System.Environment
+import Debug.Trace
 
 main :: IO ()
 main = do
     { prog <- getProgName
-    ; args <- getArgs
     ; envs <- getEnvironment
-    ; putStrLn ("Program name: " ++ prog)
-    ; putStr $ unlines $ "Arguments: " : args
-    ; putStr $ unlines $ "Environments: " : map show envs
+    ; args <- getArgs
+    ; putStrLn prog
+    ; mapM_ print envs
+    ; putStrLn $ unwords args
+    ; interact proc
     }
 
+proc :: String -> String
+proc = unlines . lines
+
+{- debug trace -}
+debug :: Bool
+debug = () /= ()
+
+trace :: String -> a -> a
+trace | debug     = Debug.trace
+      | otherwise = const id
+
+tracing :: Show a => a -> a
+tracing = trace . show <*> id
+
+{- error -}
+impossible :: a
+impossible = error "impossible"
+
+invalid :: a
+invalid = error "invalid input"
 
 {-# START_FILE README.md #-}
 # {{name}}
+
+{-# START_FILE ChangeLog.md #-}
+# Changelog for {{name}}
+
+## Unreleased changes
 
 {-# START_FILE LICENSE #-}
 Copyright {{copyright}}
@@ -275,6 +312,11 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+{-# START_FILE resetting #-}
+#!/bin/bash
+
+echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
 
 {-# START_FILE setting #-}
 #!/bin/bash
@@ -399,8 +441,3 @@ import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.0.0/dist/mermaid.es
 mermaid.initialize({ startOnLoad: true });
 window.addEventListener('vscode.markdown.updateContent', function() { mermaid.init() });
 </script>
-
-{-# START_FILE ChangeLog.md #-}
-# Changelog for {{name}}
-
-## Unreleased changes
