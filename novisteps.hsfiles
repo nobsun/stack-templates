@@ -454,26 +454,6 @@ splitEvery k = \ case
 subsegments :: [a] -> [[[a]]]
 subsegments = tail . transpose . map inits . transpose . tails 
 
-{- | accumArrayPath
--}
-accumArrayPath :: (Ix i) 
-             => (a -> b) -> (b -> a -> b) -> (b -> b -> a -> b)
-             -> Array (i,i) a -> Array (i,i) b
-accumArrayPath f g h sa = ta where
-    ta = listArray (bounds sa) (mkAccum f g h sa ta <$> assocs sa)
-
-mkAccum :: (a -> b) -> (b -> a -> b) -> (b -> b -> a -> b)
-        -> Array (i,i) a -> Array (i,i) b -> ((i,i),a) -> b
-mkAccum f g h sa ta = \ case
-    (ij,s) | ij == ij0 -> f s
-           | i  == i0  -> g (sa ! second pred ij) s
-           | j  == j0  -> g (sa ! first  pred ij) s
-           | otherwise -> h (sa ! first  pred ij) (sa ! second pred ij) s
-        where
-            ij0 = bounds sa
-            i0  = fst ij0
-            j0  = snd ij0
-
 {- |
 >>> mex [8,23,9,0,12,11,1,10,13,7,41,4,14,21,5,17,3,19,2,6]
 15
