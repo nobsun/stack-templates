@@ -319,7 +319,7 @@ solve = \ case
 toDom     :: [[I]] -> Dom
 toDom     = \ case
     _:_ -> ()
-    _   -> invalid
+    _   -> invalid $ "toDom: " ++ show __LINE__
 
 fromCodom :: Codom -> [[O]]
 fromCodom = \ case
