@@ -5,7 +5,7 @@ github:              {{github-username}}{{^github-username}}githubuser{{/github-
 license:             BSD3
 author:              {{author-name}}{{^author-name}}Author name here{{/author-name}}
 maintainer:          {{author-email}}{{^author-email}}example@example.com{{/author-email}}
-copyright:           {{copyright}}{{^copyright}}{{year}}{{^year}}2023{{/year}} {{author-name}}{{^author-name}}Author name here{{/author-name}}{{/copyright}}
+copyright:           {{copyright}}{{^copyright}}{{year}}{{^year}}2025{{/year}} {{author-name}}{{^author-name}}Author name here{{/author-name}}{{/copyright}}
 
 extra-source-files:
 - README.md
@@ -32,6 +32,7 @@ dependencies:
 - aeson
 - array
 - containers
+- constraints
 - extra
 - fgl
 - free
@@ -133,10 +134,9 @@ main = defaultMain
 
 {-# START_FILE src/Lib.hs #-}
 -- # Lib 雛形モジュール
--- このファイルは`stack new`コマンドで自動的に`src/`に挿入されます
 -- 
 -- ## 言語拡張と`module`宣言
--- 最低限の指定をしてある
+
 {-# LANGUAGE GHC2021 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
