@@ -714,7 +714,7 @@ insEntry pj ex = do
     { ls <- lines <$> readFile "package.yaml"
     ; case break ("executables:" `isPrefixOf`) ls of
         (xs,ys) -> do
-            { writeFile "tmp.yaml" $ unlines $ xs ++ [head ys] ++ entries pj ex ++ tail ys
+            { writeFile "tmp.yaml" $ unlines $ xs ++ take 1 ys ++ entries pj ex ++ drop 1 ys
             ; renameFile "tmp.yaml" "package.yaml"
             }
     }
