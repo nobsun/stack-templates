@@ -352,6 +352,10 @@ instance InterfaceForOJS Int where
     readB = readInt
     showB = showInt
 
+instance InterfaceForOJS Integer where
+    readB = readInteger
+    showB = showInteger
+
 instance InterfaceForOJS String where
     readB = readStr
     showB = showStr
@@ -371,6 +375,12 @@ readInt = fst . fromJust . B.readInt
 
 showInt :: Int -> B.ByteString
 showInt = B.pack . show
+
+readInteger :: B.ByteString -> Integer
+readInteger = fst . fromJust . B.readInteger
+
+showInteger :: Integer -> B.ByteString
+showInteger = B.pack . show
 
 readStr :: B.ByteString -> String
 readStr = B.unpack
@@ -475,7 +485,7 @@ splice n = (!! n) . transpose . map inits . tails
 [["y","a","y"],["ya","ay"],["yay"]]
 -}
 subsegments :: [a] -> [[[a]]]
-subsegments = tail . transpose . map inits . transpose . tails 
+subsegments = drop 1 . transpose . map inits . transpose . tails 
 
 {- |
 >>> mex [8,23,9,0,12,11,1,10,13,7,41,4,14,21,5,17,3,19,2,6]
@@ -635,6 +645,13 @@ primesLT1000
       ,701,709,719,727,733,739,743,751,757,761,769,773,787,797
       ,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887
       ,907,911,919,929,937,941,947,953,967,971,977,983,991,997]
+
+{- bits -}
+bitPat :: Bits a => a -> Int -> [Bool]
+bitPat a w = map (testBit a) $ reverse [0 .. pred w]
+
+selectPat :: [Bool] -> [a] -> [a]
+selectPat pat = catMaybes . zipWith (bool (const Nothing) Just) pat
 
 {-# START_FILE app/add-entry/Main.hs #-}
 module Main where
@@ -829,7 +846,7 @@ else
 fi
 
 source .curname
-stack exec -- judge-hs $1 $CURRENT_ATCODER_EXE_ENTRY
+stack exec -- judge-hs $1 $CURRENT_STACK_EXE_ENTRY
 
 {-# START_FILE .gitignore #-}
 .stack-work/
