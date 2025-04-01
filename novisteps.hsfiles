@@ -654,15 +654,26 @@ selectPat :: [Bool] -> [a] -> [a]
 selectPat pat = catMaybes . zipWith (bool (const Nothing) Just) pat
 
 {- Dummy -}
+_Comparing :: Ord a => (b -> a) -> b -> b -> Ordering
 _Comparing = comparing
-_S = (<*>)
+_LiftA :: Applicative f => (a -> b) -> f a -> f b
+_LiftA = liftA
+_Join :: Monad m => m (m a) -> m a
 _Join = join
-_DigitToInt = digitToInt
-_On = on
+_Printf :: PrintfType r => String -> r
 _Printf = printf
+
+_DigitToInt :: Char -> Int
+_DigitToInt = digitToInt
+_On :: (b -> b -> c) -> (a -> b) -> a -> a -> c
+_On = on
+_ISempty :: IS.IntSet
 _ISempty = IS.empty
+_Mempty :: Ord a => M.Map a b
 _Mempty = M.empty
+_Tflatten :: T.Tree a -> [a]
 _Tflatten = T.flatten
+_Vlength :: V.Vector a -> Int
 _Vlength = V.length
 
 {-# START_FILE app/add-entry/Main.hs #-}
