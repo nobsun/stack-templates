@@ -319,7 +319,7 @@ solve = \ case
 toDom     :: [[I]] -> Dom
 toDom     = \ case
     _:_ -> ()
-    _   -> invalid $ "toDom: " ++ show __LINE__
+    _   -> invalid $ "toDom: " ++ show @Int __LINE__
 
 fromCodom :: Codom -> [[O]]
 fromCodom = \ case
@@ -421,11 +421,11 @@ combinations = \ case
     n+1 -> \ case 
         []   -> []
         x:xs -> map (x:) (combinations n xs) ++ combinations (n+1) xs
-    _ -> error $ "combinations: " ++ show __LINE__ ++ ", negative"
+    _ -> error $ "combinations: " ++ show @Int __LINE__ ++ ", negative"
 
 nCr :: Integral a => a -> a -> a
 nCr n r
-    | n < 0  || r < 0  || n < r  = error $ "nCr: " ++ show __LINE__ ++ ", negative "
+    | n < 0  || r < 0  || n < r  = error $ "nCr: " ++ show @Int __LINE__ ++ ", negative "
     | n == 0 || r == 0 || n == r = 1
     | otherwise                  = iter 1 n 1
     where
@@ -652,6 +652,18 @@ bitPat a w = map (testBit a) $ reverse [0 .. pred w]
 
 selectPat :: [Bool] -> [a] -> [a]
 selectPat pat = catMaybes . zipWith (bool (const Nothing) Just) pat
+
+{- Dummy -}
+_Comparing = comparing
+_S = (<*>)
+_Join = join
+_DigitToInt = digitToInt
+_On = on
+_Printf = printf
+_ISempty = IS.empty
+_Mempty = M.empty
+_Tflatten = T.flatten
+_Vlength = V.length
 
 {-# START_FILE app/add-entry/Main.hs #-}
 module Main where
