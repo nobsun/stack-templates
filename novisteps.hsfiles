@@ -5,7 +5,7 @@ github:              {{github-username}}{{^github-username}}githubuser{{/github-
 license:             BSD3
 author:              {{author-name}}{{^author-name}}Author name here{{/author-name}}
 maintainer:          {{author-email}}{{^author-email}}example@example.com{{/author-email}}
-copyright:           {{copyright}}{{^copyright}}{{year}}{{^year}}2024{{/year}} {{author-name}}{{^author-name}}Author name here{{/author-name}}{{/copyright}}
+copyright:           {{copyright}}{{^copyright}}{{year}}{{^year}}2025{{/year}} {{author-name}}{{^author-name}}Author name here{{/author-name}}{{/copyright}}
 
 extra-source-files:
 - README.md
@@ -512,6 +512,15 @@ toTuple = \ case
 fromTuple :: (a,a) -> [a]
 fromTuple (x,y) = [x,y]
 
+toTriple :: [a] -> (a,a,a)
+toTriple = \ case
+    (x:y:z:_) -> (x,y,z)
+    _         -> error $ "toTriple: too short list"
+
+fromTriple :: (a,a,a) -> [a]
+fromTriple = \ case
+    (x,y,z) -> [x,y,z]
+
 countif :: (a -> Bool) -> [a] -> Int
 countif = iter 0
     where
@@ -836,6 +845,11 @@ else
   stack install implicit-hie
   gen-hie > hie.yaml
 fi
+
+{-# START_FILE resetting #-}
+#!/bin/bash
+
+echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
 
 {-# START_FILE building #-}
 #!/bin/bash
