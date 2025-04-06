@@ -130,7 +130,7 @@ library:
 executables:
   add-entry:
     main:                Main.hs
-    source-dirs:         app/add-entry
+    source-dirs:         app/zzz/add-entry
     ghc-options:
     - -rtsopts
     dependencies:
@@ -138,7 +138,7 @@ executables:
 
   judge-hs:
     main:                Main.hs
-    source-dirs:         app/judge-hs
+    source-dirs:         app/zzz/judge-hs
     ghc-options:
     - -rtsopts
     dependencies:
@@ -411,6 +411,7 @@ impossible msg = error $ msg ++ ", impossible"
 invalid :: String -> a
 invalid msg = error $ msg ++ ", invalid input"
 
+{- list -}
 {- |
 >>> combinations 2 "abcd"
 ["ab","ac","ad","bc","bd","cd"]
@@ -423,6 +424,7 @@ combinations = \ case
         x:xs -> map (x:) (combinations n xs) ++ combinations (n+1) xs
     _ -> error $ "combinations: " ++ show @Int __LINE__ ++ ", negative"
 
+{- binominal coefficients -}
 nCr :: Integral a => a -> a -> a
 nCr n r
     | n < 0  || r < 0  || n < r  = error $ "nCr: " ++ show @Int __LINE__ ++ ", negative "
@@ -434,6 +436,7 @@ nCr n r
             q | q > r'    -> p
               | otherwise -> iter (p * m `div` q) (pred m) (succ q)
 
+{- partial permutation -}
 nPr :: Integral a => a -> a -> a
 nPr n r = product (genericTake r [n, pred n .. 1])
 
@@ -503,7 +506,7 @@ minform a (n,xs)
            b        =  a + 1 + n `div` 2
            m        = length us
 
-{- misc -}
+{- list-tuple transformations -}
 toTuple :: [a] -> (a,a)
 toTuple = \ case
     x:y:_ -> (x,y)
@@ -521,11 +524,18 @@ fromTriple :: (a,a,a) -> [a]
 fromTriple = \ case
     (x,y,z) -> [x,y,z]
 
+{- counting -}
 countif :: (a -> Bool) -> [a] -> Int
 countif = iter 0
     where
         iter a p (x:xs) = iter (bool a (succ a) (p x)) p xs
         iter a _ []     = a
+
+countWhile :: (a -> Bool) -> (a -> a) -> a -> Int
+countWhile = iter 0 where
+    iter c p f x = case f x of
+        x' | p x'      -> iter (succ c) f p x'
+           | otherwise -> c
 
 {- Union-Find -}
 data UF
@@ -568,7 +578,7 @@ unite uf x y = if
 isSame :: UF -> Int -> Int -> Bool
 isSame uf x y = root uf x == root uf y
 
-{- scanArray -}
+{- array -}
 scanArray :: (Ix i, Enum i)
           => (a -> b)
           -> (b -> a -> b)
@@ -587,7 +597,6 @@ scanArray f g h sa = ta where
                 i0  = fst ij0
                 j0  = snd ij0
 
-{- neighborsArray -}
 neighbors4 :: (Ix i, Enum i) => ((i,i),(i,i)) -> (i,i) -> [(i,i)]
 neighbors4 (ij0@(i0,j0),hw@(h,w)) = \ case
     ij@(i,j) 
@@ -622,6 +631,28 @@ cp = \ case
     xs:xss -> [ x : ys | x <- xs, ys <- yss ]
         where
             yss = cp xss
+
+{- integer arithmetic -}
+
+isqrt :: Integral a => a -> a
+isqrt = fromInteger . sqrtI . toInteger
+
+infixr 8 ^!
+
+(^!) :: Num a => a -> Int -> a
+(^!) x n = x^n
+
+averageI :: Integer -> Integer -> Integer
+averageI m n = (m + n) `div` 2
+
+sqrtI :: Integer -> Integer
+sqrtI = \ case
+    m@(_n+2)      -> until (good m) (improve m) 1
+    m | m < 0     -> error "sqrtI: negative"
+      | otherwise -> m
+    where 
+        good x g = g ^! 2 <= x && x < succ g ^! 2
+        improve x g = averageI g (x `div` g)
 
 {- modular arithmetic -}
 base :: Int
@@ -685,7 +716,7 @@ _Tflatten = T.flatten
 _Vlength :: V.Vector a -> Int
 _Vlength = V.length
 
-{-# START_FILE app/add-entry/Main.hs #-}
+{-# START_FILE app/zzz/add-entry/Main.hs #-}
 module Main where
 
 import Data.Char
@@ -745,7 +776,7 @@ usage pr = hPutStrLn stderr msg
     where
         msg = "Usage: " ++ pr ++ " <entry-name>"
 
-{-# START_FILE app/judge-hs/Main.hs #-}
+{-# START_FILE app/zzz/judge-hs/Main.hs #-}
 module Main where
 
 import qualified Data.ByteString.Char8 as B
