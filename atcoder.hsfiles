@@ -673,6 +673,8 @@ mexpt !b = \ case
     o | odd o     -> mmul b (mexpt b (pred o))
       | otherwise -> mexpt (mmul b b) (o `div` 2)
 
+{- prime numbers -}
+
 primesLT1000 :: [Int]
 primesLT1000
     = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97
@@ -685,6 +687,35 @@ primesLT1000
       ,701,709,719,727,733,739,743,751,757,761,769,773,787,797
       ,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887
       ,907,911,919,929,937,941,947,953,967,971,977,983,991,997]
+
+primesLT1000000 :: () -> [Int]
+primesLT1000000 () = takeWhile (1000000 >) primes
+
+primes :: [Int]
+primes = small ++ large
+    where
+        (p,candidates) = case roll (mkWheel small) of
+            _:x:xs -> (x,xs)
+            _      -> impossible $ "primes: at "++ show @Int __LINE__
+        small          = [2,3,5,7]
+        large          = p : filter isPrime candidates
+        isPrime n      = all (not . divides n) 
+                       $ takeWhile (\ pr -> pr * pr <= n) large
+        divides n pr   = n `mod` pr == 0
+
+data Wheel = Wheel Int [Int]
+
+roll :: Wheel -> [Int]
+roll (Wheel n rs) = [ n * k + r | k <- [0 ..], r <- rs ]
+
+nextSize :: Wheel -> Int -> Wheel
+nextSize (Wheel n rs) p
+    = Wheel (p * n) [ r2 | k <- [0 .. pred p], r <- rs
+                         , let r2 = n*k+r, r2 `mod` p /= 0 ]
+
+mkWheel :: [Int] -> Wheel
+mkWheel = foldl' nextSize w0 where
+    w0 = Wheel 1 [1]
 
 {- bits -}
 bitPat :: Bits a => a -> Int -> [Bool]
