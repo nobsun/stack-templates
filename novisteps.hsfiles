@@ -130,7 +130,7 @@ library:
 executables:
   add-entry:
     main:                Main.hs
-    source-dirs:         app/add-entry
+    source-dirs:         app/zzz/add-entry
     ghc-options:
     - -rtsopts
     dependencies:
@@ -138,7 +138,7 @@ executables:
 
   judge-hs:
     main:                Main.hs
-    source-dirs:         app/judge-hs
+    source-dirs:         app/zzz/judge-hs
     ghc-options:
     - -rtsopts
     dependencies:
@@ -685,7 +685,7 @@ _Tflatten = T.flatten
 _Vlength :: V.Vector a -> Int
 _Vlength = V.length
 
-{-# START_FILE app/add-entry/Main.hs #-}
+{-# START_FILE app/zzz/add-entry/Main.hs #-}
 module Main where
 
 import Data.Char
@@ -745,7 +745,7 @@ usage pr = hPutStrLn stderr msg
     where
         msg = "Usage: " ++ pr ++ " <entry-name>"
 
-{-# START_FILE app/judge-hs/Main.hs #-}
+{-# START_FILE app/zzz/judge-hs/Main.hs #-}
 module Main where
 
 import qualified Data.ByteString.Char8 as B

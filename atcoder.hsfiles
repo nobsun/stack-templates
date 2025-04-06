@@ -533,8 +533,8 @@ countif = iter 0
 
 countWhile :: (a -> Bool) -> (a -> a) -> a -> Int
 countWhile = iter 0 where
-    iter c p f x = case f x of
-        x' | p x'      -> iter (succ c) f p x'
+    iter c p f = \ case
+        !x | p x       -> iter (succ c) p f (f x)
            | otherwise -> c
 
 {- Union-Find -}
