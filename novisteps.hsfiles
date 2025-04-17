@@ -411,6 +411,38 @@ impossible msg = error $ msg ++ ", impossible"
 invalid :: String -> a
 invalid msg = error $ msg ++ ", invalid input"
 
+{- TreeCon -}
+class Functor t => TreeCon t where
+    branches :: t a -> [t a]
+
+dfs :: TreeCon t => t a  -> [t a]
+dfs t = t : concatMap dfs (branches t)
+
+bfs :: TreeCon t => t a -> [t a]
+bfs = concat . levels 
+
+levels :: TreeCon t => t a -> [[t a]]
+levels t = [t] : foldr (lgzw (++)) [] (map levels (branches t))
+
+lgzw :: (a -> a -> a) -> [a] -> [a] -> [a]
+lgzw f (x:xs) (y:ys) = f x y : lgzw f xs ys
+lgzw _ xs [] = xs
+lgzw _ [] ys = ys
+
+depth :: TreeCon t => t a -> Int
+depth = succ . foldl' max 0 . map depth . branches
+
+paths :: TreeCon t => t a -> [[t a]]
+paths = \ case
+    t | null br   -> [[t]]
+      | otherwise -> [ t:p | b <- br, p <- paths b ]
+        where
+            br = branches t
+
+instance TreeCon T.Tree where
+    branches :: T.Tree a -> [T.Tree a]
+    branches t = t.subForest
+
 {- |
 >>> combinations 2 "abcd"
 ["ab","ac","ad","bc","bd","cd"]
