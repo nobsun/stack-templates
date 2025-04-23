@@ -265,6 +265,7 @@ main :: IO ()
 main = doctest ["src/Lib.hs"]
 
 {-# START_FILE app/Main.hs #-}
+{-# START_FILE app/Main.hs #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE GHC2021 #-}
 {-# LANGUAGE ImplicitParams #-}
@@ -443,6 +444,7 @@ instance TreeCon T.Tree where
     branches :: T.Tree a -> [T.Tree a]
     branches t = t.subForest
 
+{- list -}
 {- |
 >>> combinations 2 "abcd"
 ["ab","ac","ad","bc","bd","cd"]
@@ -455,6 +457,7 @@ combinations = \ case
         x:xs -> map (x:) (combinations n xs) ++ combinations (n+1) xs
     _ -> error $ "combinations: " ++ show @Int __LINE__ ++ ", negative"
 
+{- binominal coefficients -}
 nCr :: Integral a => a -> a -> a
 nCr n r
     | n < 0  || r < 0  || n < r  = error $ "nCr: " ++ show @Int __LINE__ ++ ", negative "
@@ -466,6 +469,7 @@ nCr n r
             q | q > r'    -> p
               | otherwise -> iter (p * m `div` q) (pred m) (succ q)
 
+{- partial permutation -}
 nPr :: Integral a => a -> a -> a
 nPr n r = product (genericTake r [n, pred n .. 1])
 
@@ -535,7 +539,43 @@ minform a (n,xs)
            b        =  a + 1 + n `div` 2
            m        = length us
 
-{- misc -}
+{- zipper -}
+type Zp a = ([a],a,[a])
+
+toZp :: [a] -> Zp a
+toZp = \ case 
+    x:xs -> ([],x,xs)
+    _    -> error "toZp: empty list"
+
+fromZp :: Zp a -> [a]
+fromZp = \ case
+    (as,c,bs) -> foldl (flip (:)) (c:bs) as
+
+mvL :: Zp a -> Zp a
+mvL = \ case
+    (a:as,c,bs) -> (as,a,c:bs)
+    _           -> error "mvL: already at left-most"
+
+mvR :: Zp a -> Zp a
+mvR = \ case
+    (as,c,b:bs) -> (c:as,b,bs)
+    _           -> error "mvR: already at right-most"
+
+mvLwhile :: (a -> Bool) -> Zp a -> Zp a
+mvLwhile p = \ case
+    ascbs@([],_,_) -> ascbs
+    ascbs@(_,c,_)
+        | p c       -> mvLwhile p (mvL ascbs)
+        | otherwise -> ascbs
+
+mvRwhile :: (a -> Bool) -> Zp a -> Zp a
+mvRwhile p = \ case
+    ascbs@(_,_,[]) -> ascbs
+    ascbs@(_,c,_)
+        | p c       -> mvRwhile p (mvR ascbs)
+        | otherwise -> ascbs
+
+{- list-tuple transformations -}
 toTuple :: [a] -> (a,a)
 toTuple = \ case
     x:y:_ -> (x,y)
@@ -553,11 +593,18 @@ fromTriple :: (a,a,a) -> [a]
 fromTriple = \ case
     (x,y,z) -> [x,y,z]
 
+{- counting -}
 countif :: (a -> Bool) -> [a] -> Int
 countif = iter 0
     where
         iter a p (x:xs) = iter (bool a (succ a) (p x)) p xs
         iter a _ []     = a
+
+countWhile :: (a -> Bool) -> (a -> a) -> a -> Int
+countWhile = iter 0 where
+    iter c p f = \ case
+        !x | p x       -> iter (succ c) p f (f x)
+           | otherwise -> c
 
 {- Union-Find -}
 data UF
@@ -600,7 +647,7 @@ unite uf x y = if
 isSame :: UF -> Int -> Int -> Bool
 isSame uf x y = root uf x == root uf y
 
-{- scanArray -}
+{- array -}
 scanArray :: (Ix i, Enum i)
           => (a -> b)
           -> (b -> a -> b)
@@ -619,7 +666,6 @@ scanArray f g h sa = ta where
                 i0  = fst ij0
                 j0  = snd ij0
 
-{- neighborsArray -}
 neighbors4 :: (Ix i, Enum i) => ((i,i),(i,i)) -> (i,i) -> [(i,i)]
 neighbors4 (ij0@(i0,j0),hw@(h,w)) = \ case
     ij@(i,j) 
@@ -655,6 +701,28 @@ cp = \ case
         where
             yss = cp xss
 
+{- integer arithmetic -}
+
+isqrt :: Integral a => a -> a
+isqrt = fromInteger . sqrtI . toInteger
+
+infixr 8 ^!
+
+(^!) :: Num a => a -> Int -> a
+(^!) x n = x^n
+
+averageI :: Integer -> Integer -> Integer
+averageI m n = (m + n) `div` 2
+
+sqrtI :: Integer -> Integer
+sqrtI = \ case
+    m@(_n+2)      -> until (good m) (improve m) 1
+    m | m < 0     -> error "sqrtI: negative"
+      | otherwise -> m
+    where 
+        good x g = g ^! 2 <= x && x < succ g ^! 2
+        improve x g = averageI g (x `div` g)
+
 {- modular arithmetic -}
 base :: Int
 base = 10^(9::Int) + 7
@@ -674,6 +742,8 @@ mexpt !b = \ case
     o | odd o     -> mmul b (mexpt b (pred o))
       | otherwise -> mexpt (mmul b b) (o `div` 2)
 
+{- prime numbers -}
+
 primesLT1000 :: [Int]
 primesLT1000
     = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97
@@ -686,6 +756,35 @@ primesLT1000
       ,701,709,719,727,733,739,743,751,757,761,769,773,787,797
       ,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887
       ,907,911,919,929,937,941,947,953,967,971,977,983,991,997]
+
+primesLT1000000 :: () -> [Int]
+primesLT1000000 () = takeWhile (1000000 >) primes
+
+primes :: [Int]
+primes = small ++ large
+    where
+        (p,candidates) = case roll (mkWheel small) of
+            _:x:xs -> (x,xs)
+            _      -> impossible $ "primes: at "++ show @Int __LINE__
+        small          = [2,3,5,7]
+        large          = p : filter isPrime candidates
+        isPrime n      = all (not . divides n) 
+                       $ takeWhile (\ pr -> pr * pr <= n) large
+        divides n pr   = n `mod` pr == 0
+
+data Wheel = Wheel Int [Int]
+
+roll :: Wheel -> [Int]
+roll (Wheel n rs) = [ n * k + r | k <- [0 ..], r <- rs ]
+
+nextSize :: Wheel -> Int -> Wheel
+nextSize (Wheel n rs) p
+    = Wheel (p * n) [ r2 | k <- [0 .. pred p], r <- rs
+                         , let r2 = n*k+r, r2 `mod` p /= 0 ]
+
+mkWheel :: [Int] -> Wheel
+mkWheel = foldl' nextSize w0 where
+    w0 = Wheel 1 [1]
 
 {- bits -}
 bitPat :: Bits a => a -> Int -> [Bool]

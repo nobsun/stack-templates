@@ -538,6 +538,42 @@ minform a (n,xs)
            b        =  a + 1 + n `div` 2
            m        = length us
 
+{- zipper -}
+type Zp a = ([a],a,[a])
+
+toZp :: [a] -> Zp a
+toZp = \ case 
+    x:xs -> ([],x,xs)
+    _    -> error "toZp: empty list"
+
+fromZp :: Zp a -> [a]
+fromZp = \ case
+    (as,c,bs) -> foldl (flip (:)) (c:bs) as
+
+mvL :: Zp a -> Zp a
+mvL = \ case
+    (a:as,c,bs) -> (as,a,c:bs)
+    _           -> error "mvL: already at left-most"
+
+mvR :: Zp a -> Zp a
+mvR = \ case
+    (as,c,b:bs) -> (c:as,b,bs)
+    _           -> error "mvR: already at right-most"
+
+mvLwhile :: (a -> Bool) -> Zp a -> Zp a
+mvLwhile p = \ case
+    ascbs@([],_,_) -> ascbs
+    ascbs@(_,c,_)
+        | p c       -> mvLwhile p (mvL ascbs)
+        | otherwise -> ascbs
+
+mvRwhile :: (a -> Bool) -> Zp a -> Zp a
+mvRwhile p = \ case
+    ascbs@(_,_,[]) -> ascbs
+    ascbs@(_,c,_)
+        | p c       -> mvRwhile p (mvR ascbs)
+        | otherwise -> ascbs
+
 {- list-tuple transformations -}
 toTuple :: [a] -> (a,a)
 toTuple = \ case
