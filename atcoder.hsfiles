@@ -527,6 +527,16 @@ countif = iter 0
         iter a p (x:xs) = iter (bool a (succ a) (p x)) p xs
         iter a _ []     = a
 
+{- rotate matrix -}
+rotCW :: [[a]] -> [[a]]
+rotCW = transpose . reverse
+
+rotCCW :: [[a]] -> [[a]]
+rotCCW = reverse . transpose
+
+rotPI :: [[a]] -> [[a]]
+rotPI = reverse . map reverse
+
 {- Union-Find -}
 data UF
     = UF
@@ -660,7 +670,12 @@ bitPat :: Bits a => a -> Int -> [Bool]
 bitPat a w = map (testBit a) $ reverse [0 .. pred w]
 
 selectPat :: [Bool] -> [a] -> [a]
-selectPat pat = catMaybes . zipWith (bool (const Nothing) Just) pat
+selectPat = \ case
+    True:bs -> \ case
+        y:ys    -> y : selectPat bs ys
+        _       -> []
+    _:bs    -> selectPat bs ys
+    _       -> const []
 
 {- Dummy -}
 _Comparing :: Ord a => (b -> a) -> b -> b -> Ordering
