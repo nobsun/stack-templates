@@ -753,6 +753,18 @@ mexpt !b = \ case
 
 {- prime numbers -}
 
+primeFactors :: Int -> [Int]
+primeFactors n = unfoldr f (n,2)
+    where
+        f = \ case
+            (1,_) -> Nothing
+            (m,p) | m < p^!2  -> Just (m,(1,m))
+                  | otherwise -> case divMod m p of
+                (q,0) -> Just (p,(q,p))
+                _ | p == 2    -> f (m,3)
+                  | otherwise -> f (m,p+2)
+
+
 primesLT1000 :: [Int]
 primesLT1000
     = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97
