@@ -172,6 +172,30 @@ tests:
 import Distribution.Simple
 main = defaultMain
 
+{-# START_FILE initialize.hs #-}
+module Main where
+
+import System.Environment
+import System.Process
+
+main :: IO ()
+main = do
+    { args <- getArgs
+    ; case args of
+        []  -> error "please specify a symbol {a .. g}"
+        a:_ -> case take 1 a of
+            []  -> error "impossible"
+            [c] -> loop c
+    }
+
+loop :: Char -> IO ()
+loop c
+    | c < 'a'   = pure ()
+    | otherwise = do
+        { callCommand (unwords ["./setting", [c]])
+        ; loop (pred c)
+        }
+
 {-# START_FILE src/Lib.hs #-}
 -- # Lib 雛形モジュール
 -- このファイルは`stack new`コマンドで自動的に`src/`に挿入されます
@@ -459,7 +483,8 @@ combinations = \ case
 {- binominal coefficients -}
 nCr :: Integral a => a -> a -> a
 nCr n r
-    | n < 0  || r < 0  || n < r  = error $ "nCr: " ++ show @Int __LINE__ ++ ", negative "
+    | n < 0  || r < 0            = error $ "nCr: " ++ show @Int __LINE__ ++ ", negative "
+    | n < r                      = 0
     | n == 0 || r == 0 || n == r = 1
     | otherwise                  = iter 1 n 1
     where
@@ -752,6 +777,13 @@ mexpt !b = \ case
       | otherwise -> mexpt (mmul b b) (o `div` 2)
 
 {- prime numbers -}
+factors :: Int -> IS.IntSet
+factors n = iter IS.empty (isqrt n) where
+    iter s = \ case
+        0 -> s
+        d -> case divMod n d of
+            (q,0) -> iter (IS.insert d (IS.insert q s)) (pred d)
+            _     -> iter s (pred d)
 
 primeFactors :: Int -> [Int]
 primeFactors n = unfoldr f (n,2)
@@ -763,7 +795,6 @@ primeFactors n = unfoldr f (n,2)
                 (q,0) -> Just (p,(q,p))
                 _ | p == 2    -> f (m,3)
                   | otherwise -> f (m,p+2)
-
 
 primesLT1000 :: [Int]
 primesLT1000
@@ -816,7 +847,9 @@ selectPat = \ case
     True:bs -> \ case
         y:ys    -> y : selectPat bs ys
         _       -> []
-    _:bs    -> selectPat bs ys
+    _:bs    -> \ case
+        y:ys    -> selectPat bs ys
+        _       -> []
     _       -> const []
 
 {- Dummy -}
