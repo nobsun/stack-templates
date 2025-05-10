@@ -848,7 +848,7 @@ selectPat = \ case
         y:ys    -> y : selectPat bs ys
         _       -> []
     _:bs    -> \ case
-        y:ys    -> selectPat bs ys
+        _:ys    -> selectPat bs ys
         _       -> []
     _       -> const []
 
