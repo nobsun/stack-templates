@@ -793,7 +793,7 @@ mfact = (mfactab !)
 
 mfactab :: Array Int Mod
 mfactab = listArray (0,factCacheSize) $ scanl' (*) (1 :: Mod) 
-        $ Mod <$> taken factCacheSize [(1 :: Int) ..]
+        $ Mod <$> take factCacheSize [(1 :: Int) ..]
 
 newtype Mod = Mod Int
     deriving (Eq, Show, Read)
@@ -802,7 +802,7 @@ instance Num Mod where
     Mod m + Mod n = Mod (m `madd` n)
     Mod m * Mod n = Mod (m `mmul` n)
     negate (Mod m) = Mod (m `mmul` negate 1)
-    fromInteger n = Mod (fromInteger (n `mod` fromItegral @Int modulus))
+    fromInteger n = Mod (fromInteger (n `mod` fromIntegral @Int modulus))
     abs = undefined
     signum = undefined
 
