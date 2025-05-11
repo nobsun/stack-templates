@@ -803,7 +803,7 @@ instance Num Mod where
     signum = undefined
 
 toMod :: Int -> Mod
-toMod = Mod (n `mod` modulus)
+toMod m = Mod (m `mod` modulus)
 
 fromMod :: Mod -> Int
 fromMod (Mod m) = m
