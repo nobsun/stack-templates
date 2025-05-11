@@ -755,6 +755,7 @@ mrecip :: Int -> Int
 mrecip a = case euclidEx a modulus of
     (1, s, _)  -> s `mod` modulus
     (-1, s, _) -> -s `mod` modulus
+    _          -> invalid $ show @Int __LINE__
 
 minv :: Mod -> Mod
 minv (Mod m) = Mod (mrecip m)
