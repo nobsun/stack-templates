@@ -328,6 +328,12 @@ import Debug.Trace qualified as Debug
 debug :: Bool
 debug = () /= ()
 
+base :: Int
+base = 10^(9::Int) + 7
+
+factCacheSize :: Int
+factCacheSize = 4 * 10 ^! 6
+
 type I = Int
 type O = Int
 
@@ -736,7 +742,6 @@ cp = \ case
             yss = cp xss
 
 {- integer arithmetic -}
-
 isqrt :: Integral a => a -> a
 isqrt = fromInteger . sqrtI . toInteger
 
@@ -757,18 +762,60 @@ sqrtI = \ case
         good x g = g ^! 2 <= x && x < succ g ^! 2
         improve x g = averageI g (x `div` g)
 
+
 {- modular arithmetic -}
-base :: Int
-base = 10^(9::Int) + 7
+modulus :: Int
+modulus = 10^(9::Int) + 7
+
+euclidEx = f 1 0 0 1 where
+    f s t s' t' a = \ case
+        0 -> (a, s, t)
+        b -> f s' t' (s - q * s') (t - q * t') b r
+            where 
+                (q, r) = divMod a b
+
+mrecip :: Int -> Int
+mrecip a = case euclidEx a modulus of
+    (1, s, _)  -> s `mod` modulus
+    (-1, s, _) -> -s `mod` modulus
+
+mnCr :: Int -> Int -> Mod
+mnCr n r = a * minv b where
+    a = mfact n
+    b = mfact r * mfact (n - r)
+
+mfact :: Int -> Mod
+mfact = (mfactab !) 
+
+mfactab :: Array Int Mod
+mfactab = listArray (0,factCacheSize) $ scanl' (*) (1 :: Mod) 
+        $ Mod <$> taken factCacheSize [(1 :: Int) ..]
+
+newtype Mod = Mod Int
+    deriving (Eq, Show, Read)
+
+instance Num Mod where
+    Mod m + Mod n = Mod (m `madd` n)
+    Mod m * Mod n = Mod (m `mmul` n)
+    subtract (Mod m) (Mod n) = Mod (negate m `madd` n)
+    fromInteger n = Mod (fromInteger (n `mod` fromItegral @Int modulus))
+    abs = undefined
+    signum = undefined
+
+toMod :: Int -> Mod
+toMod = Mod (n `mod` modulus)
+
+fromMod :: Mod -> Int
+fromMod (Mod m) = m
 
 madd :: Int -> Int -> Int
-madd !m !n = (m + n) `mod` base
+madd !m !n = (m + n) `mod` modulus
 
 msub :: Int -> Int -> Int
 msub !m = madd m . negate
 
 mmul :: Int -> Int -> Int
-mmul !m !n = m * n `mod` base
+mmul !m !n = m * n `mod` modulus
 
 mexpt :: Int -> Int -> Int
 mexpt !b = \ case
