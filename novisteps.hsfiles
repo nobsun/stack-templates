@@ -774,7 +774,7 @@ newtype Mod = Mod Int
 instance Num Mod where
     Mod m + Mod n = Mod (m `madd` n)
     Mod m * Mod n = Mod (m `mmul` n)
-    negate (Mod m) = Mod (m `mmul` -1)
+    negate (Mod m) = Mod (m `mmul` negate 1)
     fromInteger n = Mod (fromInteger (n `mod` fromItegral @Int modulus))
     abs = undefined
     signum = undefined
