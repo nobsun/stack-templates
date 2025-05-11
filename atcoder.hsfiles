@@ -765,8 +765,9 @@ sqrtI = \ case
 
 {- modular arithmetic -}
 modulus :: Int
-modulus = 10^(9::Int) + 7
+modulus = base
 
+euclidEx :: Int -> Int -> (Int,Int,Int)
 euclidEx = f 1 0 0 1 where
     f s t s' t' a = \ case
         0 -> (a, s, t)
@@ -778,6 +779,9 @@ mrecip :: Int -> Int
 mrecip a = case euclidEx a modulus of
     (1, s, _)  -> s `mod` modulus
     (-1, s, _) -> -s `mod` modulus
+
+minv :: Mod -> Mod
+minv (Mod m) = Mod (mrecip m)
 
 mnCr :: Int -> Int -> Mod
 mnCr n r = a * minv b where

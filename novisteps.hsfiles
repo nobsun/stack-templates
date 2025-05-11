@@ -756,6 +756,9 @@ mrecip a = case euclidEx a modulus of
     (1, s, _)  -> s `mod` modulus
     (-1, s, _) -> -s `mod` modulus
 
+minv :: Mod -> Mod
+minv (Mod m) = Mod (mrecip m)
+
 mnCr :: Int -> Int -> Mod
 mnCr n r = a * minv b where
     a = mfact n
