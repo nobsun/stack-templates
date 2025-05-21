@@ -762,7 +762,6 @@ sqrtI = \ case
         good x g = g ^! 2 <= x && x < succ g ^! 2
         improve x g = averageI g (x `div` g)
 
-
 {- modular arithmetic -}
 modulus :: Int
 modulus = base
