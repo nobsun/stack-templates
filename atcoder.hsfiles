@@ -346,55 +346,52 @@ solve :: Solver
 solve = \ case
     () -> ()
 
-toDom     :: [[I]] -> Dom
-toDom     = \ case
+decode :: [[I]] -> Dom
+decode = \ case
     _:_ -> ()
     _   -> invalid $ "toDom: " ++ show @Int __LINE__
 
-fromCodom :: Codom -> [[O]]
-fromCodom = \ case
+encode :: Codom -> [[O]]
+encode = \ case
     _rr -> [[]]
 
-wrap :: Solver -> ([[I]] -> [[O]])
-wrap f = fromCodom . f . toDom
-
 main :: IO ()
-main = B.interact (encode . wrap solve . decode)
+main = B.interact (detokenize . encode . solve . decode . entokenize)
 
-class InterfaceForOJS a where
+class AsToken a where
     readB :: B.ByteString -> a
     readBs :: B.ByteString -> [a]
     readBs = map readB . B.words
-    decode :: B.ByteString -> [[a]]
-    decode = map readBs . B.lines
+    entokenize :: B.ByteString -> [[a]]
+    entokenize = map readBs . B.lines
 
     showB :: a -> B.ByteString
     showBs :: [a] -> B.ByteString
     showBs = B.unwords . map showB
-    encode :: [[a]] -> B.ByteString
-    encode = B.unlines . map showBs
+    detokenize :: [[a]] -> B.ByteString
+    detokenize = B.unlines . map showBs
 
-instance InterfaceForOJS B.ByteString where
+instance AsToken B.ByteString where
     readB = id
     showB = id
 
-instance InterfaceForOJS Int where
+instance AsToken Int where
     readB = readInt
     showB = showInt
 
-instance InterfaceForOJS Integer where
+instance AsToken Integer where
     readB = readInteger
     showB = showInteger
 
-instance InterfaceForOJS String where
+instance AsToken String where
     readB = readStr
     showB = showStr
 
-instance InterfaceForOJS Double where
+instance AsToken Double where
     readB = readDbl
     showB = showDbl
 
-instance InterfaceForOJS Char where
+instance AsToken Char where
     readB = B.head
     showB = B.singleton
     readBs = B.unpack
