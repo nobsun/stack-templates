@@ -175,25 +175,41 @@ main = defaultMain
 {-# START_FILE initialize.hs #-}
 module Main where
 
+import System.Directory
 import System.Environment
 import System.Process
+
+import Debug.Trace
 
 main :: IO ()
 main = do
     { args <- getArgs
     ; case args of
-        []  -> error "please specify a symbol {a .. g}"
-        a:_ -> case take 1 a of
-            []  -> error "impossible"
-            [c] -> loop c
+        []  -> error "please specify a symbol abcXXX{a .. g}"
+        a:_ -> do 
+            { callCommand (unwords ["mkdir", "test/case"])
+            ; loop (init a) (last a)
+            }
     }
 
-loop :: Char -> IO ()
-loop c
+loop :: String -> Char -> IO ()
+loop con c
     | c < 'a'   = pure ()
     | otherwise = do
-        { callCommand (unwords ["./setting", [c]])
-        ; loop (pred c)
+        { callCommand (unwords ["cp", "-a"
+                               , [c]++"/tests"
+                               , "test/case/" ++ [c]
+                               ])
+        ; callCommand (unwords ["./setting", [c]])
+        ; callCommand (unwords ["mv"
+                               ,"app/"++[c]++"/Main.hs"
+                               , [c]++"/"])
+        ; withCurrentDirectory ("app/" ++ [c])
+        $   callCommand (unwords ["ln"
+                                 ,"-s"
+                                 ,"../../"++[c]++"/Main.hs"
+                                 ,"Main.hs"])
+        ; loop con (pred c)
         }
 
 {-# START_FILE src/Lib.hs #-}
