@@ -1080,7 +1080,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 {-# START_FILE activate #-}
-chmod u+x building checking executing ghcing resetting setting
+chmod u+x building checking executing ghcing initializing resetting setting
+
+{-# START_FILE initializing #-}
+#!/bin/bash
+
+runghc initialize.hs $1
 
 {-# START_FILE setting #-}
 #!/bin/bash
