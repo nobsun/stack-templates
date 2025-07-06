@@ -321,6 +321,7 @@ import Data.IntSet qualified as IS
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Tree qualified as T
+import Data.Sequence qualified as Q
 import Data.Vector qualified as V
 
 import Debug.Trace qualified as Debug
@@ -420,6 +421,32 @@ readDbl = read . B.unpack
 
 showDbl :: Double -> B.ByteString
 showDbl = B.pack . show
+
+class DeQueue q where
+    emptyDQ :: q a
+    nullDQ  :: q a -> Bool
+    consDQ  :: a -> q a -> q a
+    snocDQ  :: q a -> a -> q a
+    dequeueL :: b -> (a -> q a -> b) -> q a -> b
+    dequeueR :: b -> (q a -> a -> b) -> q a -> b
+
+instance DeQueue Q.Seq where
+    emptyDQ :: Q.Seq a
+    emptyDQ = Q.empty
+    nullDQ :: Q.Seq a -> Bool
+    nullDQ  = Q.null
+    consDQ :: a -> Q.Seq a -> Q.Seq a
+    consDQ  = (Q.<|)
+    snocDQ  :: Q.Seq a -> a -> Q.Seq a
+    snocDQ  = (Q.|>)
+    dequeueL :: b -> (a -> Q.Seq a -> b) -> Q.Seq a -> b
+    dequeueL z f dq = case Q.viewl dq of
+        Q.EmptyL  -> z
+        a Q.:< aq -> f a aq
+    dequeueR :: b -> (Q.Seq a -> a -> b) -> Q.Seq a -> b
+    dequeueR z f dq = case Q.viewr dq of
+        Q.EmptyR  -> z
+        aq Q.:> a -> f aq a
 
 {- Bonsai -}
 
