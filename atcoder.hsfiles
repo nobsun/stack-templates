@@ -540,25 +540,39 @@ nPr n r = product (genericTake r [n, pred n .. 1])
 -}
 spanCount :: (a -> Bool) -> [a] -> (Int, [a])
 spanCount p = \ case
-    []   -> (0,[])
-    aas@(a:as)
-        | p a       -> case spanCount p as of
-            (c,bs)      -> (succ c, bs)
-        | otherwise -> (0,aas)
+    x:xs | p x -> case spanCount p xs of
+        (m,ys)     -> (succ m, ys)
+    xs         -> (0,xs)
+
+{- Run Length Encode -}
+type RLE a = [(a, Int)]
+
+toRLE :: Eq a => [a] -> RLE a
+toRLE = unfoldr psi where
+    psi = \ case
+        x:xs -> case spanCount (x ==) xs of
+            (m,ys) -> Just ((x, succ m), ys)
+        _    -> Nothing
+
+fromRLE :: RLE a -> [a]
+fromRLE = (uncurry (flip replicate) =<<)
+
+rleSplitAt :: Int -> RLE a -> (RLE a, RLE a)
+rleSplitAt = \ case
+    n+1 -> \ case
+        h@(x,m+1):rs
+            | n < m     -> ([(x,n+1)],(x,m-n):rs)
+            | otherwise -> case rleSplitAt (n-m) rs of
+                (as,bs)     -> (h:as,bs)
+        _               -> ([],[])
+    _   -> ([],)
 
 {- |
 >>> runLength "aaaabbbcddeeeeeefghhhh"
 [('a',4),('b',3),('c',1),('d',2),('e',6),('f',1),('g',1),('h',4)]
 -}
 runLength :: Eq a => [a] -> [(a, Int)]
-runLength = runLengthBy (==)
-
-runLengthBy :: (a -> a -> Bool) -> [a] -> [(a, Int)]
-runLengthBy eq = unfoldr phi
-  where
-    phi []     = Nothing
-    phi (x:xs) = case spanCount (x `eq`) xs of
-      (m, zs) -> Just ((x, succ m) , zs)
+runLength = toRLE
 
 {- |
 >>> splitEvery 3 [0 .. 10]
