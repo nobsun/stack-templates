@@ -35,19 +35,21 @@ dependencies:
 - constraints
 - extra
 - fgl
+- fgl-visualize
 - free
 - gloss
 - hmatrix
 - mtl
 - recursion-schemes
 - split
-- text
+- tex
 - vector
 - directory
 - exceptions
 - filepath
 - process
 - stm
+- listshuffle
 
 language: GHC2021
 
@@ -72,6 +74,7 @@ ghc-options:
 - -Wno-unused-imports
 - -Wno-unused-top-binds
 - -Wno-orphans
+- -Wno-x-partial
 
 library:
   source-dirs: src
@@ -347,7 +350,7 @@ stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 
 {-# START_FILE .gitignore #-}
 .stack-work/
-dist-new/
+dist-newstyle/
 {{name}}.cabal
 *.log
 .curproj
