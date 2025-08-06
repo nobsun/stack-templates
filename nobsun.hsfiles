@@ -49,7 +49,7 @@ dependencies:
 - filepath
 - process
 - stm
-- listshuffle
+- list-shuffle
 
 language: GHC2021
 
