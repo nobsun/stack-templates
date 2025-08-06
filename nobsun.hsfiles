@@ -270,11 +270,11 @@ tracing :: Show a => a -> a
 tracing = trace . show <*> id
 
 {- error -}
-impossible :: a
-impossible = error "impossible"
+impossible :: String -> a
+impossible msg = error $ "impossible: " ++ msg
 
-invalid :: a
-invalid = error "invalid input"
+invalid :: String -> a
+invalid msg = error $ "invalid input" ++ msg
 
 {-# START_FILE README.md #-}
 # {{name}}
@@ -315,6 +315,11 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+{-# START_FILE activate #-}
+#!/bin/bash
+
+chmod u+x catn building executing resetting setting ghcing
 
 {-# START_FILE resetting #-}
 #!/bin/bash
