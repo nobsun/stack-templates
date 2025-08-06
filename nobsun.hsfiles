@@ -42,7 +42,7 @@ dependencies:
 - mtl
 - recursion-schemes
 - split
-- tex
+- text
 - vector
 - directory
 - exceptions
