@@ -50,6 +50,8 @@ dependencies:
 - process
 - stm
 - list-shuffle
+- random
+- prettyprinter
 
 language: GHC2021
 
