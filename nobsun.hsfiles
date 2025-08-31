@@ -53,7 +53,7 @@ dependencies:
 - random
 - prettyprinter
 
-language: GHC2021
+language: GHC2024
 
 default-extensions:
 - ImplicitParams
@@ -142,7 +142,7 @@ main = defaultMain
 -- 
 -- ## 言語拡張と`module`宣言
 
-{-# LANGUAGE GHC2021 #-}
+{-# LANGUAGE GHC2024 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -169,7 +169,7 @@ someFunc = putStrLn "なんか関数"
 {-# OPTIONS -F -pgmF hspec-discover #-}
 
 {-# START_FILE test/LibSpec.hs #-}
-{-# LANGUAGE GHC2021 #-}
+{-# LANGUAGE GHC2024 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -213,7 +213,7 @@ spec = describe "someFunc" $ do
   }
 
 {-# START_FILE test/doctests.hs #-}
-{-# LANGUAGE GHC2021 #-}
+{-# LANGUAGE GHC2024 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -231,7 +231,7 @@ main :: IO ()
 main = doctest ["src/Lib.hs"]
 
 {-# START_FILE app/Main.hs #-}
-{-# LANGUAGE GHC2021 #-}
+{-# LANGUAGE GHC2024 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -374,7 +374,7 @@ _prompt _ n = (utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime) >>= pri
 :set prompt-function _prompt
 import Text.Show.Unicode
 :set -interactive-print=uprint
-:set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
+:set -XGHC2024 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
 :set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
 :set -XImplicitParams -XNoFieldSelectors -XDuplicateRecordFields -XOverloadedRecordDot
 :set editor catn
