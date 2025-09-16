@@ -104,7 +104,7 @@ dependencies:
 - vector-th-unbox
 - xhtml
 
-language: GHC2024
+language: GHC2021
 
 default-extensions:
 - CPP
@@ -210,7 +210,7 @@ loop con c
 -- ## 言語拡張と`module`宣言
 -- 最低限の指定をしてある
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE GHC2024 #-}
+{-# LANGUAGE GHC2021 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -236,7 +236,7 @@ someFunc = putStrLn "なんか関数"
 {-# OPTIONS -F -pgmF hspec-discover #-}
 
 {-# START_FILE test/LibSpec.hs #-}
-{-# LANGUAGE GHC2024 #-}
+{-# LANGUAGE GHC2021 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -279,7 +279,7 @@ spec = describe "someFunc" $ do
   }
 
 {-# START_FILE test/doctests.hs #-}
-{-# LANGUAGE GHC2024 #-}
+{-# LANGUAGE GHC2021 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -297,7 +297,7 @@ main = doctest ["src/Lib.hs"]
 
 {-# START_FILE app/Main.hs #-}
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE GHC2024 #-}
+{-# LANGUAGE GHC2021 #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
@@ -1192,6 +1192,6 @@ _prompt _ n = (utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime) >>= pri
 :set prompt-function _prompt
 import Text.Show.Unicode
 :set -interactive-print=uprint
-:set -XGHC2024 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
+:set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
 :set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
 :set -XImplicitParams -XNoFieldSelectors -XDuplicateRecordFields -XOverloadedRecordDot
