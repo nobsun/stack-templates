@@ -372,7 +372,7 @@ stack exec -- $CURRENT_STACK_EXE_ENTRY
 #!/bin/bash
 
 source .curname
-cd {{name}}/$CURRENT_STACK_EXE_ENTRY && oj t -c "runghc Main.hs" -d tests
+cd {{name}}/$CURRENT_STACK_EXE_ENTRY && oj t -c '../../executing' -d tests
 
 {-# START_FILE .gitignore #-}
 .stack-work/
