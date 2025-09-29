@@ -332,8 +332,11 @@ acc new {{name}}
 ln -s {{name}} ./app
 
 touch .curname
-ln -s .curname app/a/ app/b/ app/c/ app/d/ app/e/ app/f/ app/g/
-ln -s executing app/a/ app/b/ app/c/ app/d/ app/e/ app/f/ app/g/
+for i in {a..g}
+do
+    ln -s .curname app/$i/ 
+    ln -s executing app/$i/
+done
 
 tee stack.yaml > /dev/null << 'EOF'
 snapshot: lts-23.28
