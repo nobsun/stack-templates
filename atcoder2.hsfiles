@@ -131,30 +131,44 @@ executables:
   a:
     main:               Main.hs
     source-dirs:        {{name}}/a
+    dependencies:
+    - {{name}}
     
   b:
     main:               Main.hs
     source-dirs:        {{name}}/b
+    dependencies:
+    - {{name}}
 
   c:
     main:               Main.hs
     source-dirs:        {{name}}/c
+    dependencies:
+    - {{name}}
 
   d:
     main:               Main.hs
     source-dirs:        {{name}}/d
+    dependencies:
+    - {{name}}
 
   e:
     main:               Main.hs
     source-dirs:        {{name}}/e
+    dependencies:
+    - {{name}}
 
   f:
     main:               Main.hs
     source-dirs:        {{name}}/f
+    dependencies:
+    - {{name}}
 
   g:
     main:               Main.hs
     source-dirs:        {{name}}/g
+    dependencies:
+    - {{name}}
 
 tests:
   {{name}}-test:
@@ -175,37 +189,6 @@ tests:
 {-# START_FILE Setup.hs #-}
 import Distribution.Simple
 main = defaultMain
-
-{-# START_FILE initialize.hs #-}
-module Main where
-
-import System.Directory
-import System.Environment
-import System.Process
-
-main :: IO ()
-main = do
-    { args <- getArgs
-    ; case args of
-        []  -> error "please specify a symbol abcXXX{a .. g}"
-        a:_ -> do 
-            { callCommand (unwords ["mkdir", "test/case"])
-            ; loop (init a) (last a)
-            }
-    }
-
-loop :: String -> Char -> IO ()
-loop con c
-    | c < 'a'   = pure ()
-    | otherwise = do
-        { callCommand (unwords ["cp", "-a"
-                               , [c]++"/tests"
-                               , "test/case/" ++ [c]
-                               ])
-        ; callCommand (unwords ["rm","-rf",[c]])
-        ; callCommand (unwords ["rm","contest.acc.json"])
-        ; loop con (pred c)
-        }
 
 {-# START_FILE src/Lib.hs #-}
 -- # Lib 雛形モジュール
@@ -372,6 +355,18 @@ echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
 
 source .curname
 stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
+
+{-# START_FILE building #-}
+#!/bin/bash
+
+source .curname
+stack build {{name}}:exe:$CURRENT_STACK_EXE_ENTRY
+
+{-# START_FILE executing #-}
+#!/bin/bash
+
+source .curname
+stack exec -- $CURRENT_STACK_EXE_ENTRY
 
 {-# START_FILE checking #-}
 #!/bin/bash
