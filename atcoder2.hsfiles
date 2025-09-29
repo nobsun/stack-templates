@@ -330,9 +330,17 @@ chmod u+x building checking executing ghcing initializing resetting setting
 
 acc new {{name}}
 ln -s {{name}} ./app
+
 touch .curname
 ln -s .curname app/a/ app/b/ app/c/ app/d/ app/e/ app/f/ app/g/
 ln -s executing app/a/ app/b/ app/c/ app/d/ app/e/ app/f/ app/g/
+
+tee stack.yaml > /dev/null << 'EOF'
+snapshot: lts-23.28
+
+packages:
+- .
+EOF
 
 {-# START_FILE setting #-}
 #!/bin/bash
