@@ -136,14 +136,6 @@ executables:
     dependencies:
     - {{name}}
 
-  judge-hs:
-    main:                Main.hs
-    source-dirs:         app/zzz/judge-hs
-    ghc-options:
-    - -rtsopts
-    dependencies:
-    - {{name}}
-
   {{name}}:
     main:                Main.hs
     source-dirs:         app
@@ -171,37 +163,6 @@ tests:
 {-# START_FILE Setup.hs #-}
 import Distribution.Simple
 main = defaultMain
-
-{-# START_FILE initialize.hs #-}
-module Main where
-
-import System.Directory
-import System.Environment
-import System.Process
-
-main :: IO ()
-main = do
-    { args <- getArgs
-    ; case args of
-        []  -> error "please specify a symbol abcXXX{a .. g}"
-        a:_ -> do 
-            { callCommand (unwords ["mkdir", "test/case"])
-            ; loop (init a) (last a)
-            }
-    }
-
-loop :: String -> Char -> IO ()
-loop con c
-    | c < 'a'   = pure ()
-    | otherwise = do
-        { callCommand (unwords ["cp", "-a"
-                               , [c]++"/tests"
-                               , "test/case/" ++ [c]
-                               ])
-        ; callCommand (unwords ["rm","-rf",[c]])
-        ; callCommand (unwords ["rm","contest.acc.json"])
-        ; loop con (pred c)
-        }
 
 {-# START_FILE src/Lib.hs #-}
 -- # Lib 雛形モジュール
@@ -294,6 +255,214 @@ import Test.DocTest
 
 main :: IO ()
 main = doctest ["src/Lib.hs"]
+
+{-# START_FILE README.md #-}
+# {{name}}
+
+{-# START_FILE ChangeLog.md #-}
+# Changelog for {{name}}
+
+## Unreleased changes
+
+{-# START_FILE LICENSE #-}
+Copyright {{copyright}}
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+
+    * Neither the name of {{author-name}}{{^author-name}}Author name here{{/author-name}} nor the names of other
+      contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+{-# START_FILE .gitignore #-}
+.stack-work/
+dist-new/
+{{name}}.cabal
+*.log
+.curname
+core
+*.hi
+*.o
+*~
+
+{-# START_FILE .ghci #-}
+import Data.Time
+_prompt _ n = (utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime) >>= print >> return ">>> "
+:set prompt-function _prompt
+import Text.Show.Unicode
+:set -interactive-print=uprint
+:set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
+:set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
+:set -XImplicitParams -XNoFieldSelectors -XDuplicateRecordFields -XOverloadedRecordDot
+
+{-# START_FILE app/zzz/add-entry/Main.hs #-}
+module Main where
+
+import Data.Char
+import Data.List
+import System.Directory
+import System.Environment
+import System.FilePath
+import System.IO
+
+main :: IO ()
+main = do
+    { pr <- getProgName
+    ; as <- getArgs
+    ; pj <- takeBaseName <$> getCurrentDirectory
+    ; case as of
+        ex:_ -> proc pj ex
+        _    -> usage pr
+    }
+
+proc :: FilePath -> FilePath -> IO ()
+proc pj ex = do
+    { let
+        { normex   = toLower <$> ex
+        ; execdir  = "app" </> normex
+        ; from     = "app" </> "Main.hs"
+        ; to       = execdir </> "Main.hs"
+        }
+    ; copyFile from to
+    ; insEntry pj normex
+    }
+
+insEntry :: String -> String -> IO ()
+insEntry pj ex = do
+    { ls <- lines <$> readFile "package.yaml"
+    ; case break ("executables:" `isPrefixOf`) ls of
+        (xs,ys) -> do
+            { writeFile "tmp.yaml" $ unlines $ xs ++ take 1 ys ++ entries pj ex ++ drop 1 ys
+            ; renameFile "tmp.yaml" "package.yaml"
+            }
+    }
+
+entries :: String -> String -> [String]
+entries pj ex = 
+    [ "  " ++ ex ++ ":"
+    , "    main:               Main.hs"
+    , "    source-dirs:        app/" ++ ex
+    , "    ghc-options:"
+    , "    - -rtsopts"
+    , "    dependencies:"
+    , "    - " ++ pj
+    , ""
+    ]
+
+usage :: String -> IO ()
+usage pr = hPutStrLn stderr msg
+    where
+        msg = "Usage: " ++ pr ++ " <entry-name>"
+
+{-# START_FILE activate #-}
+chmod u+x building checking executing ghcing initializing resetting setting submitting
+
+{-# START_FILE initializing #-}
+#!/bin/bash
+
+tee stack.yaml > /dev/null << 'EOF'
+snapshot: lts-23.28
+
+packages:
+- .
+EOF
+
+if [ -e ~/.config/atcoder-cli-nodejs/haskell ] && [ ! -f ~/.config/atcoder-cli-nodejs/haskell/Main.hs ] ; then
+    cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
+fi
+
+acc config default-task-choice all
+acc config default-template haskell
+
+acc new {{name}}
+mv {{name}}/contest.acc.json ./
+
+for i in {a..g}
+do
+  mv {{name}}/$i app/
+  ./setting $i
+done
+
+rmdir {{name}}
+
+./resetting a
+
+{-# START_FILE setting #-}
+#!/bin/bash
+
+stack build {{name}}:exe:add-entry
+stack exec -- add-entry $1
+
+echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
+
+stack build {{name}}:exe:$1
+
+if type "gen-hie" > /dev/null 2>&1; then
+  gen-hie > hie.yaml
+else
+  stack install implicit-hie
+  gen-hie > hie.yaml
+fi
+
+{-# START_FILE resetting #-}
+#!/bin/bash
+
+echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
+
+{-# START_FILE building #-}
+#!/bin/bash
+
+source .curname
+stack build {{name}}:exe:$CURRENT_STACK_EXE_ENTRY
+
+{-# START_FILE executing #-}
+#!/bin/bash
+
+source .curname
+stack exec -- $CURRENT_STACK_EXE_ENTRY
+
+{-# START_FILE ghcing #-}
+#!/bin/bash
+
+source .curname
+stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
+
+{-# START_FILE checking #-}
+#!/bin/bash
+
+source .curname
+
+./building
+oj t -c ./executing -d app/$CURRENT_STACK_EXE_ENTRY/tests
+
+{-# START_FILE submitting #-}
+#!/bin/bash
+
+source .curname
+
+acc s -t {{name}}_$CURRENT_STACK_EXE_ENTRY app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 
 {-# START_FILE app/Main.hs #-}
 {-# LANGUAGE CPP #-}
@@ -970,228 +1139,3 @@ _Tflatten :: T.Tree a -> [a]
 _Tflatten = T.flatten
 _Vlength :: V.Vector a -> Int
 _Vlength = V.length
-
-{-# START_FILE app/zzz/add-entry/Main.hs #-}
-module Main where
-
-import Data.Char
-import Data.List
-import System.Directory
-import System.Environment
-import System.FilePath
-import System.IO
-
-main :: IO ()
-main = do
-    { pr <- getProgName
-    ; as <- getArgs
-    ; pj <- takeBaseName <$> getCurrentDirectory
-    ; case as of
-        ex:_ -> proc pj ex
-        _    -> usage pr
-    }
-
-proc :: FilePath -> FilePath -> IO ()
-proc pj ex = do
-    { let
-        { normex   = toLower <$> ex
-        ; execdir  = "app" </> normex
-        ; from     = "app" </> "Main.hs"
-        ; to       = execdir </> "Main.hs"
-        }
-    ; createDirectory execdir
-    ; copyFile from to
-    ; insEntry pj normex
-    }
-
-insEntry :: String -> String -> IO ()
-insEntry pj ex = do
-    { ls <- lines <$> readFile "package.yaml"
-    ; case break ("executables:" `isPrefixOf`) ls of
-        (xs,ys) -> do
-            { writeFile "tmp.yaml" $ unlines $ xs ++ take 1 ys ++ entries pj ex ++ drop 1 ys
-            ; renameFile "tmp.yaml" "package.yaml"
-            }
-    }
-
-entries :: String -> String -> [String]
-entries pj ex = 
-    [ "  " ++ ex ++ ":"
-    , "    main:               Main.hs"
-    , "    source-dirs:        app/" ++ ex
-    , "    ghc-options:"
-    , "    - -rtsopts"
-    , "    dependencies:"
-    , "    - " ++ pj
-    , ""
-    ]
-
-usage :: String -> IO ()
-usage pr = hPutStrLn stderr msg
-    where
-        msg = "Usage: " ++ pr ++ " <entry-name>"
-
-{-# START_FILE app/zzz/judge-hs/Main.hs #-}
-module Main where
-
-import qualified Data.ByteString.Char8 as B
-import Data.Bool
-import Data.List
-import Data.Time
-import System.Environment
-import System.Directory
-import System.FilePath
-import System.Process
-
-main :: IO ()
-main = do
-    probid:projid:_ <- getArgs
-    fs <- sort . filter (isExtensionOf "txt") 
-            <$> listDirectory ("test" </> "case" </> probid </> "in")
-    let ins  = map (("test" </>) . ("case" </>) . (probid </>) . ("in" </>)) fs
-    let outs = map (("test" </>) . ("case" </>) . (probid </>) . ("out" </>)) fs
-    loop projid ins outs
-
-loop :: String -> [FilePath] -> [FilePath] -> IO ()
-loop _   []     _      = return ()
-loop cmd (i:is) (o:os) = do
-    start <- getCurrentTime
-    (_, Just hout, _, _)
-            <- createProcess 
-                (shell ("stack exec " ++ cmd 
-                 -- ++ " +RTS -p -RTS"
-                 ++ " < " ++ i))
-                { std_out = CreatePipe }
-    out0 <- B.hGetContents hout
-    out1 <- B.filter (/= '\r') <$> B.readFile o
-    let msg = bool "WA" "AC" (out0 == out1)
-    putStr (takeFileName i ++ ": " ++ msg ++ " : ")
-    end <- getCurrentTime
-    print (diffUTCTime end start)
-    loop cmd is os
-loop _ _ _ = error "loop: impossible"
-
-{-# START_FILE README.md #-}
-# {{name}}
-
-{-# START_FILE ChangeLog.md #-}
-# Changelog for {{name}}
-
-## Unreleased changes
-
-{-# START_FILE LICENSE #-}
-Copyright {{copyright}}
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
-    * Neither the name of {{author-name}}{{^author-name}}Author name here{{/author-name}} nor the names of other
-      contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-{-# START_FILE activate #-}
-chmod u+x building checking executing ghcing initializing resetting setting
-
-{-# START_FILE initializing #-}
-#!/bin/bash
-
-runghc initialize.hs $1
-
-{-# START_FILE setting #-}
-#!/bin/bash
-
-if type "add-entry" > /dev/null 2>&1; then
-  add-entry $1
-else 
-  stack install {{name}}:exe:add-entry
-  add-entry $1
-fi
-
-echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
-
-stack build {{name}}:exe:$1
-
-if type "gen-hie" > /dev/null 2>&1; then
-  gen-hie > hie.yaml
-else
-  stack install implicit-hie
-  gen-hie > hie.yaml
-fi
-
-{-# START_FILE resetting #-}
-#!/bin/bash
-
-echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
-
-{-# START_FILE building #-}
-#!/bin/bash
-
-source .curname
-stack build {{name}}:exe:$CURRENT_STACK_EXE_ENTRY
-
-{-# START_FILE executing #-}
-#!/bin/bash
-
-source .curname
-stack exec -- $CURRENT_STACK_EXE_ENTRY
-
-{-# START_FILE ghcing #-}
-#!/bin/bash
-
-source .curname
-stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
-
-{-# START_FILE checking #-}
-#!/bin/bash
-
-if type "judge-hs" > /dev/null 2>&1; then
-  :
-else 
-  stack install {{name}}:exe:judge-hs
-fi
-
-source .curname
-stack exec -- judge-hs $1 $CURRENT_STACK_EXE_ENTRY
-
-{-# START_FILE .gitignore #-}
-.stack-work/
-dist-new/
-{{name}}.cabal
-*.log
-.curname
-core
-*.hi
-*.o
-*~
-
-{-# START_FILE .ghci #-}
-import Data.Time
-_prompt _ n = (utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime) >>= print >> return ">>> "
-:set prompt-function _prompt
-import Text.Show.Unicode
-:set -interactive-print=uprint
-:set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
-:set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
-:set -XImplicitParams -XNoFieldSelectors -XDuplicateRecordFields -XOverloadedRecordDot
