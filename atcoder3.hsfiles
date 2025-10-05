@@ -389,10 +389,11 @@ packages:
 - .
 EOF
 
-cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
+if [ -e ~/.config/atcoder-cli-nodejs/haskell ] && [ ! -f ~/.config/atcoder-cli-nodejs/haskell/Main.hs ] ; then
+    cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
 
 acc config default-task-choice all
-acc config defarht-template haskell
+acc config default-template haskell
 
 acc new {{name}}
 mv {{name}}/contest.acc.json ./
@@ -460,7 +461,7 @@ oj t -c ./executing -d app/$CURRENT_STACK_EXE_ENTRY/tests
 
 source .curname
 
-acc s -t {{name}}_$CURRENT_STACK_EXE_ENTRY app/$CURRENT_STACK_EXE_ENTRY/tests
+acc s -t {{name}}_$CURRENT_STACK_EXE_ENTRY app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 
 {-# START_FILE app/Main.hs #-}
 {-# LANGUAGE CPP #-}
