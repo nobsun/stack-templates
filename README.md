@@ -34,8 +34,6 @@ https://zenn.dev/ok_xmonad/articles/ae1c5bf0a955c1
 
 https://github.com/key-moon/aclogin/blob/main/README.md#aclogin
 
-この README にあるように、AtCoder に Browser でログインしたあとの Cookie を ~/.config/atcoder-cli-nodejs/session.json に設定しておく必要があります。
-
 ## AtCoder用 Stack テンプレートの使い方
 
 ### プロジェクト初期化
