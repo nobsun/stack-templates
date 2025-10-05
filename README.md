@@ -47,6 +47,9 @@ source activate ## ユーティリティスクリプトの実行権限 ON
 ./initializing  ## プロジェクトディレクトリの（再）構成、テスト用サンプルデータの取得
 ```
 
+#### 注意
+`initializing`スクリプトは内部で`setting`スクリプトを呼んでいます。`setting`スクリプトは、`implicit-hie`パッケージを**無断でインストール**し、`gen-hie`コマンドを`$HOME/.local/bin/`に設置します。
+
 ### 問題A用の初期化
 
 ```shell
