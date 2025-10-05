@@ -1059,6 +1059,13 @@ chmod u+x building checking executing ghcing initializing resetting setting
 {-# START_FILE initializing #-}
 #!/bin/bash
 
+tee stack.yaml > /dev/null << 'EOF'
+snapshot: lts-23.28
+
+packages:
+- .
+EOF
+
 cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
 
 acc config default-task-choice all
