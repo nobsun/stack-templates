@@ -37,28 +37,28 @@ https://github.com/key-moon/aclogin/blob/main/README.md#aclogin
 ### プロジェクト初期化
 
 ```shell
-$ stack new abc426 nobsun/atcoder ## 筆者の作成したテンプレートファイルの利用
-$ cd abc426
-$ source activate ## ユーティリティスクリプトの実行権限 ON
-$ ./initializing  ## プロジェクトディレクトリの（再）構成、テスト用サンプルデータの取得
+stack new abc426 nobsun/atcoder ## 筆者の作成したテンプレートファイルの利用
+cd abc426
+source activate ## ユーティリティスクリプトの実行権限 ON
+./initializing  ## プロジェクトディレクトリの（再）構成、テスト用サンプルデータの取得
 ```
 
 ### 問題A用の初期化
 
 ```shell
-$ ./resetting a ## 問題A用初期設定、このあと app/a/Main.hs を編集する
+./resetting a ## 問題A用初期設定、このあと app/a/Main.hs を編集する
 ```
 
 ### 問題Aを解くコード`app/a/Main.hs`のビルドとサンプルデータによるテスト
 
 ```shell
-$ ./checking ## app/a/Main.hs のコンパイルと動作チェック
+./checking ## app/a/Main.hs のコンパイルと動作チェック
 ```
 
-### 問題Aを解くコード`app/a/Main.hs`の提出
+### 問題Aを解くコード`app/a/Main.hs`の提出 -- 未検証
 
-**N.B.** コンテスト開催時間中のみ CLI で提出可能
+**N.B.** コンテスト開催時間中のみCLIで提出可能
 
 ```shell
-$ ./submitting ## app/a/Main.hs の提出
+./submitting ## app/a/Main.hs の提出
 ```
