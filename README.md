@@ -60,10 +60,19 @@ source activate ## ユーティリティスクリプトの実行権限 ON
 ./checking ## app/a/Main.hs のコンパイルと動作チェック
 ```
 
-### 問題Aを解くコード`app/a/Main.hs`の提出 -- 未検証
+### 問題Aを解くコード`app/a/Main.hs`の提出 -- 未確認
 
 **N.B.** コンテスト開催時間中のみCLIで提出可能
 
 ```shell
 ./submitting ## app/a/Main.hs の提出
 ```
+
+## ToDo
+
+現時点で、
+
+- `initializing`： 問題が A 〜 G であることを決め打ち
+- `submitting`： タスクIDが {{name}}_{a..g} に決め打ち
+
+`contest.acc.json`を適切に参照するようにする。
