@@ -399,10 +399,9 @@ acc config default-template haskell
 acc new {{name}}
 mv {{name}}/contest.acc.json ./
 
-for i in {a..g}
-do
-  mv {{name}}/$i app/
-  ./setting $i
+jq -r '.tasks[].id' ./contest.acc.json | while read tid; do
+  mv {{name}}/${tid: -1} app/
+  ./setting ${tid: -1}
 done
 
 rmdir {{name}}

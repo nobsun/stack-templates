@@ -70,9 +70,4 @@ source activate ## ユーティリティスクリプトの実行権限 ON
 
 ## ToDo
 
-現時点で、
-
-- `initializing`： 問題が A 〜 G であることを決め打ち
-- `submitting`： タスクIDが {{name}}_{a..g} に決め打ち
-
-`contest.acc.json`を適切に参照するようにする。
+- `submitting` の動作確認
