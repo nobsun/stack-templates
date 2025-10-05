@@ -391,6 +391,7 @@ EOF
 
 if [ -e ~/.config/atcoder-cli-nodejs/haskell ] && [ ! -f ~/.config/atcoder-cli-nodejs/haskell/Main.hs ] ; then
     cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
+fi
 
 acc config default-task-choice all
 acc config default-template haskell
