@@ -1011,6 +1011,7 @@ chmod u+x building checking executing ghcing initializing resetting setting
 #!/bin/bash
 
 acc config default-task-choice all
+acc config defarht-template haskell
 
 acc new {{name}}
 mv {{name}}/contest.acc.json app/
