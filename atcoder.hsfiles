@@ -1,6 +1,6 @@
 {-# START_FILE package.yaml #-}
 name:                {{name}}
-version:             0.0.0
+version:             0.1.0.0
 github:              {{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}
 license:             BSD3
 author:              {{author-name}}{{^author-name}}Author name here{{/author-name}}
@@ -11,24 +11,10 @@ extra-source-files:
 - README.md
 - ChangeLog.md
 
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            {{category}}{{^category}}Web{{/category}}
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/{{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}#readme>
 
 dependencies:
 - base >= 4.7 && < 5
-- utf8-string
-- unicode-show
-- hspec
-- main-tester
-- Cabal
-- Cabal-syntax
-- QuickCheck
 - adjunctions
 - array
 - attoparsec
@@ -108,7 +94,6 @@ language: GHC2021
 
 default-extensions:
 - CPP
-- ImplicitParams
 - ImportQualifiedPost
 - LambdaCase
 - LexicalNegation
@@ -123,138 +108,28 @@ default-extensions:
 
 ghc-options:
 - -Wall
+- -Wno-unused-imports
+- -Wno-x-partial
 
 library:
-  source-dirs: src
+    source-dirs: []
 
 executables:
   add-entry:
     main:                Main.hs
     source-dirs:         app/zzz/add-entry
-    ghc-options:
-    - -rtsopts
     dependencies:
     - {{name}}
 
   {{name}}:
     main:                Main.hs
     source-dirs:         app
-    ghc-options:
-    - -rtsopts
     dependencies:
     - {{name}}
-
-tests:
-  {{name}}-test:
-    main:                spec.hs
-    source-dirs:         test
-    dependencies:
-    - {{name}}
-    - hspec
-    - main-tester
-
-  {{name}}-doctest:
-    main:                doctests.hs
-    source-dirs:         test
-    dependencies:
-    - {{name}}
-    - doctest
 
 {-# START_FILE Setup.hs #-}
 import Distribution.Simple
 main = defaultMain
-
-{-# START_FILE src/Lib.hs #-}
--- # Lib 雛形モジュール
--- このファイルは`stack new`コマンドで自動的に`src/`に挿入されます
--- 
--- ## 言語拡張と`module`宣言
--- 最低限の指定をしてある
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE GHC2021 #-}
-{-# LANGUAGE ImplicitParams #-}
-{-# LANGUAGE ImportQualifiedPost #-}
-{-# LANGUAGE LexicalNegation #-}
-{-# LANGUAGE LambdaCase, MultiWayIf #-}
-{-# LANGUAGE NPlusKPatterns #-}
-{-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
-module Lib
-    ( someFunc
-    ) where
-
--- ## `doctest`のための記述と定義本体
-{- | 
-「なんか関数」を標準出力に印字する
->>> someFunc
-なんか関数
--}
-someFunc :: IO ()
-someFunc = putStrLn "なんか関数"
-
-{-# START_FILE test/spec.hs #-}
-{-# OPTIONS -F -pgmF hspec-discover #-}
-
-{-# START_FILE test/LibSpec.hs #-}
-{-# LANGUAGE GHC2021 #-}
-{-# LANGUAGE ImplicitParams #-}
-{-# LANGUAGE ImportQualifiedPost #-}
-{-# LANGUAGE LexicalNegation #-}
-{-# LANGUAGE LambdaCase, MultiWayIf #-}
-{-# LANGUAGE NPlusKPatterns #-}
-{-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
-module LibSpec
-  ( spec
-  ) where
-
-import Data.String
-import qualified Codec.Binary.UTF8.String as U
-import qualified Data.ByteString as B
-import Test.Main
-import Test.Hspec
-import Text.Show.Unicode
-import Lib
-
-newtype UString a = UString a deriving Eq
-
-ustring :: B.ByteString -> UString String
-ustring = UString . U.decode . B.unpack
-
-instance IsString a => IsString (UString a) where
-  fromString = UString . fromString
-  
-instance Show a => Show (UString a) where
-  show (UString s) = ushow s
-
-spec :: Spec
-spec = describe "someFunc" $ do
-  { it "「なんか関数」を標準出力に印字する." $ do
-    { result <- captureProcessResult Lib.someFunc
-    ; prExitCode result `shouldBe` ExitSuccess
-    ; prStderr result `shouldSatisfy` B.null
-    ; ustring (prStdout result) `shouldBe` "なんか関数\n"
-    }
-  }
-
-{-# START_FILE test/doctests.hs #-}
-{-# LANGUAGE GHC2021 #-}
-{-# LANGUAGE ImplicitParams #-}
-{-# LANGUAGE ImportQualifiedPost #-}
-{-# LANGUAGE LexicalNegation #-}
-{-# LANGUAGE LambdaCase, MultiWayIf #-}
-{-# LANGUAGE NPlusKPatterns #-}
-{-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
-module Main where
-
-import Test.DocTest
-
-main :: IO ()
-main = doctest ["src/Lib.hs"]
 
 {-# START_FILE README.md #-}
 # {{name}}
@@ -308,14 +183,8 @@ core
 *~
 
 {-# START_FILE .ghci #-}
-import Data.Time
-_prompt _ n = (utcToLocalTime <$> getCurrentTimeZone <*> getCurrentTime) >>= print >> return ">>> "
-:set prompt-function _prompt
-import Text.Show.Unicode
-:set -interactive-print=uprint
 :set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
 :set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
-:set -XImplicitParams -XNoFieldSelectors -XDuplicateRecordFields -XOverloadedRecordDot
 
 {-# START_FILE app/zzz/add-entry/Main.hs #-}
 module Main where
@@ -466,14 +335,12 @@ acc s -t {{name}}_$CURRENT_STACK_EXE_ENTRY app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 {-# START_FILE app/Main.hs #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE GHC2021 #-}
-{-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE LexicalNegation #-}
 {-# LANGUAGE LambdaCase, MultiWayIf #-}
 {-# LANGUAGE NPlusKPatterns #-}
-{-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies #-}
+{-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies, UndecidableInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE OverloadedRecordDot, NoFieldSelectors, DuplicateRecordFields #-}
 module Main where
 
 import Data.ByteString.Char8 qualified as B
@@ -597,34 +464,6 @@ readDbl = read . B.unpack
 showDbl :: Double -> B.ByteString
 showDbl = B.pack . show
 
-class DeQueue q where
-    emptyDQ :: q a
-    nullDQ  :: q a -> Bool
-    consDQ  :: a -> q a -> q a
-    snocDQ  :: q a -> a -> q a
-    dequeueL :: b -> (a -> q a -> b) -> q a -> b
-    dequeueR :: b -> (q a -> a -> b) -> q a -> b
-
-instance DeQueue Q.Seq where
-    emptyDQ :: Q.Seq a
-    emptyDQ = Q.empty
-    nullDQ :: Q.Seq a -> Bool
-    nullDQ  = Q.null
-    consDQ :: a -> Q.Seq a -> Q.Seq a
-    consDQ  = (Q.<|)
-    snocDQ  :: Q.Seq a -> a -> Q.Seq a
-    snocDQ  = (Q.|>)
-    dequeueL :: b -> (a -> Q.Seq a -> b) -> Q.Seq a -> b
-    dequeueL z f dq = case Q.viewl dq of
-        Q.EmptyL  -> z
-        a Q.:< aq -> f a aq
-    dequeueR :: b -> (Q.Seq a -> a -> b) -> Q.Seq a -> b
-    dequeueR z f dq = case Q.viewr dq of
-        Q.EmptyR  -> z
-        aq Q.:> a -> f aq a
-
-{- Bonsai -}
-
 {- debug -}
 trace :: String -> a -> a
 trace | debug     = Debug.trace
@@ -639,6 +478,8 @@ impossible msg = error $ msg ++ ", impossible"
 
 invalid :: String -> a
 invalid msg = error $ msg ++ ", invalid input"
+
+{- Bonsai -}
 
 {- TreeCon -}
 class Functor t => TreeCon t where
@@ -670,9 +511,36 @@ paths = \ case
 
 instance TreeCon T.Tree where
     branches :: T.Tree a -> [T.Tree a]
-    branches t = t.subForest
+    branches = T.subForest
 
-{- list -}
+{- DeQueue -}
+class DeQueue q where
+    emptyDQ :: q a
+    nullDQ  :: q a -> Bool
+    consDQ  :: a -> q a -> q a
+    snocDQ  :: q a -> a -> q a
+    dequeueL :: b -> (a -> q a -> b) -> q a -> b
+    dequeueR :: b -> (q a -> a -> b) -> q a -> b
+
+instance DeQueue Q.Seq where
+    emptyDQ :: Q.Seq a
+    emptyDQ = Q.empty
+    nullDQ :: Q.Seq a -> Bool
+    nullDQ  = Q.null
+    consDQ :: a -> Q.Seq a -> Q.Seq a
+    consDQ  = (Q.<|)
+    snocDQ  :: Q.Seq a -> a -> Q.Seq a
+    snocDQ  = (Q.|>)
+    dequeueL :: b -> (a -> Q.Seq a -> b) -> Q.Seq a -> b
+    dequeueL z f dq = case Q.viewl dq of
+        Q.EmptyL  -> z
+        a Q.:< aq -> f a aq
+    dequeueR :: b -> (Q.Seq a -> a -> b) -> Q.Seq a -> b
+    dequeueR z f dq = case Q.viewr dq of
+        Q.EmptyR  -> z
+        aq Q.:> a -> f aq a
+
+{- List utilities -}
 {- |
 >>> combinations 2 "abcd"
 ["ab","ac","ad","bc","bd","cd"]
@@ -878,7 +746,7 @@ root uf = \ case
     x | p == -1   -> x
       | otherwise -> root uf p
       where
-        p = uf.parent IM.! x
+        p = parent uf IM.! x
 
 unite :: UF -> Int -> Int -> UF
 unite uf x y = if
@@ -888,13 +756,13 @@ unite uf x y = if
     where
         x' = root uf x
         y' = root uf y
-        szx = uf.size IM.! x'
-        szy = uf.size IM.! y'
+        szx = size uf IM.! x'
+        szy = size uf IM.! y'
         update :: UF -> Int -> (Int, Int) -> UF
         update u a (b, szb)
             = u
-            { parent = IM.insert b a u.parent
-            , size   = IM.adjust (+ szb) a u.size
+            { parent = IM.insert b a (parent u)
+            , size   = IM.adjust (+ szb) a (size u)
             }
 
 isSame :: UF -> Int -> Int -> Bool
@@ -1115,26 +983,3 @@ selectPat = \ case
         _:ys    -> selectPat bs ys
         _       -> []
     _       -> const []
-
-{- Dummy -}
-_Comparing :: Ord a => (b -> a) -> b -> b -> Ordering
-_Comparing = comparing
-_LiftA :: Applicative f => (a -> b) -> f a -> f b
-_LiftA = liftA
-_Join :: Monad m => m (m a) -> m a
-_Join = join
-_Printf :: PrintfType r => String -> r
-_Printf = printf
-
-_DigitToInt :: Char -> Int
-_DigitToInt = digitToInt
-_On :: (b -> b -> c) -> (a -> b) -> a -> a -> c
-_On = on
-_ISempty :: IS.IntSet
-_ISempty = IS.empty
-_Mempty :: Ord a => M.Map a b
-_Mempty = M.empty
-_Tflatten :: T.Tree a -> [a]
-_Tflatten = T.flatten
-_Vlength :: V.Vector a -> Int
-_Vlength = V.length
