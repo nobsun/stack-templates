@@ -1,141 +1,21 @@
-{-# START_FILE package.yaml #-}
-name:                {{name}}
-version:             0.1.0.0
-github:              {{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}
-license:             BSD3
-author:              {{author-name}}{{^author-name}}Author name here{{/author-name}}
-maintainer:          {{author-email}}{{^author-email}}example@example.com{{/author-email}}
-copyright:           {{copyright}}{{^copyright}}{{year}}{{^year}}2025{{/year}} {{author-name}}{{^author-name}}Author name here{{/author-name}}{{/copyright}}
+{-# START_FILE .ghci #-}
+:set -XCPP
+:set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
+:set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
 
-extra-source-files:
-- README.md
-- ChangeLog.md
-
-description:         Please see the README on GitHub at <https://github.com/{{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}#readme>
-
-dependencies:
-- base >= 4.7 && < 5
-- adjunctions
-- array
-- attoparsec
-- bifunctors
-- binary
-- bitvec
-- bytestring
-- comonad
-- containers
-- contravariant
-- deepseq
-- directory
-- distributive
-- exceptions
-- extra
-- fgl
-- filepath
-- free
-- ghc-bignum
-- ghc-boot-th
-- ghc-prim
-- hashable
-- heaps
-- indexed-traversable
-- indexed-traversable-instances
-- integer-gmp
-- integer-logarithms
-- kan-extensions
-- lens
-- linear-base
-- list-t
-- massiv
-- megaparsec
-- mono-traversable
-- mtl
-- mutable-containers
-- mwc-random
-- parallel
-- parsec
-- parser-combinators
-- pretty
-- primitive
-- process
-- profunctors
-- psqueues
-- random
-- reflection
-- regex-tdfa
-- safe-exceptions
-- scientific
-- semialign
-- semigroupoids
-- split
-- stm
-- strict
-- strict-lens
-- tagged
-- template-haskell
-- text
-- tf-random
-- these
-- these-lens
-- time
-- transformers
-- trifecta
-- unboxing-vector
-- unix
-- unordered-containers
-- utility-ht
-- vector
-- vector-algorithms
-- vector-stream
-- vector-th-unbox
-- xhtml
-
-language: GHC2021
-
-default-extensions:
-- CPP
-- ImportQualifiedPost
-- LambdaCase
-- LexicalNegation
-- MultiWayIf
-- NPlusKPatterns
-- OverloadedStrings
-- DataKinds
-- PolyKinds
-- NoStarIsType
-- TypeFamilyDependencies
-- UndecidableInstances
-
-ghc-options:
-- -Wall
-- -Wno-unused-imports
-- -Wno-x-partial
-
-library:
-    source-dirs: []
-
-executables:
-  add-entry:
-    main:                Main.hs
-    source-dirs:         app/zzz/add-entry
-    dependencies:
-    - {{name}}
-
-  {{name}}:
-    main:                Main.hs
-    source-dirs:         app
-    dependencies:
-    - {{name}}
-
-{-# START_FILE Setup.hs #-}
-import Distribution.Simple
-main = defaultMain
-
-{-# START_FILE README.md #-}
-# {{name}}
+{-# START_FILE .gitignore #-}
+.stack-work/
+dist-new/
+{{name}}.cabal
+*.log
+.curname
+core
+*.hi
+*.o
+*~
 
 {-# START_FILE ChangeLog.md #-}
-# Changelog for {{name}}
+# ChangeLog for {{name}}
 
 ## Unreleased changes
 
@@ -171,166 +51,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-{-# START_FILE .gitignore #-}
-.stack-work/
-dist-new/
-{{name}}.cabal
-*.log
-.curname
-core
-*.hi
-*.o
-*~
+{-# START_FILE README.md #-}
+# {{name}}
 
-{-# START_FILE .ghci #-}
-:set -XGHC2021 -XLambdaCase -XMultiWayIf -XNPlusKPatterns -XOverloadedStrings -XLexicalNegation
-:set -XDataKinds -XPolyKinds -XNoStarIsType -XTypeFamilyDependencies -XUndecidableInstances
-
-{-# START_FILE app/zzz/add-entry/Main.hs #-}
-module Main where
-
-import Data.Char
-import Data.List
-import System.Directory
-import System.Environment
-import System.FilePath
-import System.IO
-
-main :: IO ()
-main = do
-    { pr <- getProgName
-    ; as <- getArgs
-    ; pj <- takeBaseName <$> getCurrentDirectory
-    ; case as of
-        ex:_ -> proc pj ex
-        _    -> usage pr
-    }
-
-proc :: FilePath -> FilePath -> IO ()
-proc pj ex = do
-    { let
-        { normex   = toLower <$> ex
-        ; execdir  = "app" </> normex
-        ; from     = "app" </> "Main.hs"
-        ; to       = execdir </> "Main.hs"
-        }
-    ; copyFile from to
-    ; insEntry pj normex
-    }
-
-insEntry :: String -> String -> IO ()
-insEntry pj ex = do
-    { ls <- lines <$> readFile "package.yaml"
-    ; case break ("executables:" `isPrefixOf`) ls of
-        (xs,ys) -> do
-            { writeFile "tmp.yaml" $ unlines $ xs ++ take 1 ys ++ entries pj ex ++ drop 1 ys
-            ; renameFile "tmp.yaml" "package.yaml"
-            }
-    }
-
-entries :: String -> String -> [String]
-entries pj ex = 
-    [ "  " ++ ex ++ ":"
-    , "    main:               Main.hs"
-    , "    source-dirs:        app/" ++ ex
-    , "    ghc-options:"
-    , "    - -rtsopts"
-    , "    dependencies:"
-    , "    - " ++ pj
-    , ""
-    ]
-
-usage :: String -> IO ()
-usage pr = hPutStrLn stderr msg
-    where
-        msg = "Usage: " ++ pr ++ " <entry-name>"
+{-# START_FILE Setup.hs #-}
+import Distribution.Simple
+main = defaultMain
 
 {-# START_FILE activate #-}
 chmod u+x building checking executing ghcing initializing resetting setting submitting
-
-{-# START_FILE initializing #-}
-#!/bin/bash
-
-tee stack.yaml > /dev/null << 'EOF'
-snapshot: lts-23.28
-
-packages:
-- .
-EOF
-
-if [ -e ~/.config/atcoder-cli-nodejs/haskell ] && [ ! -f ~/.config/atcoder-cli-nodejs/haskell/Main.hs ] ; then
-    cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
-fi
-
-acc config default-task-choice all
-acc config default-template haskell
-
-acc new {{name}}
-mv {{name}}/contest.acc.json ./
-
-jq -r '.tasks[].id' ./contest.acc.json | while read tid; do
-  mv {{name}}/${tid: -1} app/
-  ./setting ${tid: -1}
-done
-
-rmdir {{name}}
-
-./resetting a
-
-{-# START_FILE setting #-}
-#!/bin/bash
-
-stack build {{name}}:exe:add-entry
-stack exec -- add-entry $1
-
-echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
-
-stack build {{name}}:exe:$1
-
-if type "gen-hie" > /dev/null 2>&1; then
-  gen-hie > hie.yaml
-else
-  stack install implicit-hie
-  gen-hie > hie.yaml
-fi
-
-{-# START_FILE resetting #-}
-#!/bin/bash
-
-echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
-
-{-# START_FILE building #-}
-#!/bin/bash
-
-source .curname
-stack build {{name}}:exe:$CURRENT_STACK_EXE_ENTRY
-
-{-# START_FILE executing #-}
-#!/bin/bash
-
-source .curname
-stack exec -- $CURRENT_STACK_EXE_ENTRY
-
-{-# START_FILE ghcing #-}
-#!/bin/bash
-
-source .curname
-stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
-
-{-# START_FILE checking #-}
-#!/bin/bash
-
-source .curname
-
-./building
-oj t -c ./executing -d app/$CURRENT_STACK_EXE_ENTRY/tests
-
-{-# START_FILE submitting #-}
-#!/bin/bash
-
-source .curname
-
-acc s -t {{name}}_$CURRENT_STACK_EXE_ENTRY app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 
 {-# START_FILE app/Main.hs #-}
 {-# LANGUAGE CPP #-}
@@ -983,3 +712,275 @@ selectPat = \ case
         _:ys    -> selectPat bs ys
         _       -> []
     _       -> const []
+
+{-# START_FILE app/zzz/add-entry/Main.hs #-}
+module Main where
+
+import Data.Char
+import Data.List
+import System.Directory
+import System.Environment
+import System.FilePath
+import System.IO
+
+main :: IO ()
+main = do
+    { pr <- getProgName
+    ; as <- getArgs
+    ; pj <- takeBaseName <$> getCurrentDirectory
+    ; case as of
+        ex:_ -> proc pj ex
+        _    -> usage pr
+    }
+
+proc :: FilePath -> FilePath -> IO ()
+proc pj ex = do
+    { let
+        { normex   = toLower <$> ex
+        ; execdir  = "app" </> normex
+        ; from     = "app" </> "Main.hs"
+        ; to       = execdir </> "Main.hs"
+        }
+    ; copyFile from to
+    ; insEntry pj normex
+    }
+
+insEntry :: String -> String -> IO ()
+insEntry pj ex = do
+    { ls <- lines <$> readFile "package.yaml"
+    ; case break ("executables:" `isPrefixOf`) ls of
+        (xs,ys) -> do
+            { writeFile "tmp.yaml" $ unlines $ xs ++ take 1 ys ++ entries pj ex ++ drop 1 ys
+            ; renameFile "tmp.yaml" "package.yaml"
+            }
+    }
+
+entries :: String -> String -> [String]
+entries pj ex = 
+    [ "  " ++ ex ++ ":"
+    , "    main:               Main.hs"
+    , "    source-dirs:        app/" ++ ex
+    , "    ghc-options:"
+    , "    - -rtsopts"
+    , "    dependencies:"
+    , "    - " ++ pj
+    , ""
+    ]
+
+usage :: String -> IO ()
+usage pr = hPutStrLn stderr msg
+    where
+        msg = "Usage: " ++ pr ++ " <entry-name>"
+
+{-# START_FILE building #-}
+#!/bin/bash
+
+source .curname
+stack build {{name}}:exe:$CURRENT_STACK_EXE_ENTRY
+
+{-# START_FILE checking #-}
+#!/bin/bash
+
+source .curname
+
+./building
+oj t -c ./executing -d app/$CURRENT_STACK_EXE_ENTRY/tests
+
+{-# START_FILE executing #-}
+#!/bin/bash
+
+source .curname
+stack exec -- $CURRENT_STACK_EXE_ENTRY
+
+{-# START_FILE ghcing #-}
+#!/bin/bash
+
+source .curname
+stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
+
+{-# START_FILE initializing #-}
+#!/bin/bash
+
+tee stack.yaml > /dev/null << 'EOF'
+snapshot: lts-23.28
+
+packages:
+- .
+EOF
+
+if [ -e ~/.config/atcoder-cli-nodejs/haskell ] && [ ! -f ~/.config/atcoder-cli-nodejs/haskell/Main.hs ] ; then
+    cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
+fi
+
+acc config default-task-choice all
+acc config default-template haskell
+
+acc new {{name}}
+mv {{name}}/contest.acc.json ./
+
+jq -r '.tasks[].id' ./contest.acc.json | while read tid; do
+  mv {{name}}/${tid: -1} app/
+  ./setting ${tid: -1}
+done
+
+rmdir {{name}}
+
+./resetting a
+
+{-# START_FILE package.yaml #-}
+name:                {{name}}
+version:             0.1.0.0
+github:              {{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}
+license:             BSD3
+author:              {{author-name}}{{^author-name}}Author name here{{/author-name}}
+maintainer:          {{author-email}}{{^author-email}}example@example.com{{/author-email}}
+copyright:           {{copyright}}{{^copyright}}{{year}}{{^year}}2025{{/year}} {{author-name}}{{^author-name}}Author name here{{/author-name}}{{/copyright}}
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+description:         Please see the README on GitHub at <https://github.com/{{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- adjunctions
+- array
+- attoparsec
+- bifunctors
+- binary
+- bitvec
+- bytestring
+- comonad
+- containers
+- contravariant
+- deepseq
+- directory
+- distributive
+- exceptions
+- extra
+- fgl
+- filepath
+- free
+- ghc-bignum
+- ghc-boot-th
+- ghc-prim
+- hashable
+- heaps
+- indexed-traversable
+- indexed-traversable-instances
+- integer-gmp
+- integer-logarithms
+- kan-extensions
+- lens
+- linear-base
+- list-t
+- massiv
+- megaparsec
+- mono-traversable
+- mtl
+- mutable-containers
+- mwc-random
+- parallel
+- parsec
+- parser-combinators
+- pretty
+- primitive
+- process
+- profunctors
+- psqueues
+- random
+- reflection
+- regex-tdfa
+- safe-exceptions
+- scientific
+- semialign
+- semigroupoids
+- split
+- stm
+- strict
+- strict-lens
+- tagged
+- template-haskell
+- text
+- tf-random
+- these
+- these-lens
+- time
+- transformers
+- trifecta
+- unboxing-vector
+- unix
+- unordered-containers
+- utility-ht
+- vector
+- vector-algorithms
+- vector-stream
+- vector-th-unbox
+- xhtml
+
+language: GHC2021
+
+default-extensions:
+- CPP
+- ImportQualifiedPost
+- LambdaCase
+- LexicalNegation
+- MultiWayIf
+- NPlusKPatterns
+- OverloadedStrings
+- DataKinds
+- PolyKinds
+- NoStarIsType
+- TypeFamilyDependencies
+- UndecidableInstances
+
+ghc-options:
+- -Wall
+- -Wno-unused-imports
+- -Wno-x-partial
+
+library:
+    source-dirs: []
+
+executables:
+  add-entry:
+    main:                Main.hs
+    source-dirs:         app/zzz/add-entry
+    dependencies:
+    - {{name}}
+
+  {{name}}:
+    main:                Main.hs
+    source-dirs:         app
+    dependencies:
+    - {{name}}
+
+{-# START_FILE resetting #-}
+#!/bin/bash
+
+echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
+
+{-# START_FILE setting #-}
+#!/bin/bash
+
+stack build {{name}}:exe:add-entry
+stack exec -- add-entry $1
+
+echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
+
+stack build {{name}}:exe:$1
+
+if type "gen-hie" > /dev/null 2>&1; then
+  gen-hie > hie.yaml
+else
+  stack install implicit-hie
+  gen-hie > hie.yaml
+fi
+
+{-# START_FILE submitting #-}
+#!/bin/bash
+
+source .curname
+
+acc s -t {{name}}_$CURRENT_STACK_EXE_ENTRY app/$CURRENT_STACK_EXE_ENTRY/Main.hs
