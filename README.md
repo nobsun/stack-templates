@@ -6,7 +6,7 @@
 
 ### 免責
 
-作者は、このテンプレートを利用したこと（利用しなかったこと）による、いかなる結果にも一切の責任をもちません。
+作者は、このテンプレートを利用したこと（利用しなかったこと）による、いかなる結果にも一切の責任を負いません。
 
 ### 利用のための前提
 
@@ -15,9 +15,9 @@
 - OS： Pop!_OS 24.04 LTS Beta （Ubuntu 24.04 LTS 土台になっている）
 - Haskell ツール （以下がインストール済みであること）
     - GHCup 0.1.50.2
-        - Stack 3.3.1
+        - Stack 3.7.1
         - HLS 2.10.0.0
-        - cabal 3.12.1.0
+        - cabal 3.16.0.0
         - GHC 9.8.4
 - AtCoder ツール （以下がインストール済みであること）
     - online-judge-tool
@@ -28,11 +28,22 @@ AtCoder ツールについては、以下の記事が判りやすいです。
 
 https://zenn.dev/ok_xmonad/articles/ae1c5bf0a955c1
 
-~/.config/atcoder-cli-nodejs/haskell/template.json はこの記事と同じように設定されていることを前提とします。
+```
+acc config default-task-choice all
+```
+
+を実行したうえで、
+~/.config/atcoder-cli-nodejs/haskell/ 以下は[上の記事](https://zenn.dev/ok_xmonad/articles/ae1c5bf0a955c1)と同じように設定された上で、
+
+```
+acc config default-template haskell
+```
+
+が実行されているものとします。
 
 さらに、AtCoder へのログインについては、以下のツールが必要なようです。
 
-https://github.com/key-moon/aclogin/blob/main/README.md#aclogin
+https://github.com/key-moon/aclogin
 
 ## AtCoder用 Stack テンプレートの使い方
 

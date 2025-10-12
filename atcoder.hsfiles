@@ -806,14 +806,13 @@ snapshot: lts-23.28
 
 packages:
 - .
+
+extra-deps:
+- ac-library-hs-1.5.3.0
+
 EOF
 
-if [ -e ~/.config/atcoder-cli-nodejs/haskell ] && [ ! -f ~/.config/atcoder-cli-nodejs/haskell/Main.hs ] ; then
-    cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
-fi
-
-acc config default-task-choice all
-acc config default-template haskell
+cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
 
 acc new {{name}}
 mv {{name}}/contest.acc.json ./
@@ -824,6 +823,8 @@ jq -r '.tasks[].id' ./contest.acc.json | while read tid; do
 done
 
 rmdir {{name}}
+cp contest.acc.json app/
+ln -s ./app ./{{name}}
 
 ./resetting a
 
@@ -861,12 +862,16 @@ dependencies:
 - extra
 - fgl
 - filepath
+- flow
 - free
 - ghc-bignum
 - ghc-boot-th
 - ghc-prim
 - hashable
 - heaps
+- hmatrix
+- hmatrix-gsl
+- hmatrix-special
 - indexed-traversable
 - indexed-traversable-instances
 - integer-gmp
@@ -877,6 +882,7 @@ dependencies:
 - list-t
 - massiv
 - megaparsec
+- monad-memo
 - mono-traversable
 - mtl
 - mutable-containers
@@ -915,8 +921,11 @@ dependencies:
 - utility-ht
 - vector
 - vector-algorithms
+- vector-split
 - vector-stream
 - vector-th-unbox
+- wide-word
+- witherable
 - xhtml
 
 language: GHC2021
@@ -983,4 +992,5 @@ fi
 
 source .curname
 
-acc s -t {{name}}_$CURRENT_STACK_EXE_ENTRY app/$CURRENT_STACK_EXE_ENTRY/Main.hs
+cd {{name}}/$CURRENT_STACK_EXE_ENTRY && acc s -s -- --no-open
+
