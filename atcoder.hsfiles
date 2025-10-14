@@ -305,17 +305,6 @@ stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 {-# START_FILE initializing #-}
 #!/bin/bash
 
-tee stack.yaml > /dev/null << 'EOF'
-snapshot: lts-23.28
-
-packages:
-- .
-
-extra-deps:
-- ac-library-hs-1.5.3.0
-
-EOF
-
 cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
 
 acc new {{name}}
