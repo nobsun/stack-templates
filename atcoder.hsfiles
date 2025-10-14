@@ -100,12 +100,6 @@ import Debug.Trace qualified as Debug
 debug :: Bool
 debug = () /= ()
 
-base :: Int
-base = 10^(9::Int) + 7
-
-factCacheSize :: Int
-factCacheSize = 4 * 10 ^! 6
-
 type I = Int
 type O = Int
 
