@@ -61,6 +61,19 @@ main = defaultMain
 {-# START_FILE activate #-}
 chmod u+x building checking executing ghcing initializing resetting setting submitting
 
+tee stack.yaml > /dev/null << 'EOF'
+snapshot: lts-23.28
+
+packages:
+- .
+
+extra-deps:
+- ac-library-hs-1.5.3.0
+
+EOF
+
+stack build
+
 {-# START_FILE app/Main.hs #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE GHC2021 #-}
