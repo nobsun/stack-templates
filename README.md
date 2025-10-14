@@ -52,7 +52,7 @@ https://github.com/key-moon/aclogin
 ```shell
 stack new abc426 nobsun/atcoder ## 筆者の作成したテンプレートファイルの利用
 cd abc426
-source activate ## ユーティリティスクリプトの実行権限 ON
+source activate ## ユーティリティスクリプトの実行権限 ON ほか
 ./initializing  ## プロジェクトディレクトリの（再）構成、テスト用サンプルデータの取得
 ```
 
