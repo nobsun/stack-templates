@@ -466,7 +466,6 @@ echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
 {-# START_FILE setting #-}
 #!/bin/bash
 
-stack build {{name}}:exe:add-entry
 stack exec -- add-entry $1
 
 echo "export CURRENT_STACK_EXE_ENTRY=$1" > .curname
