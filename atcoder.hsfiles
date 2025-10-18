@@ -484,10 +484,3 @@ else
   gen-hie > hie.yaml
 fi
 
-{-# START_FILE submitting #-}
-#!/bin/bash
-
-source .curname
-
-cd {{name}}/$CURRENT_STACK_EXE_ENTRY && acc s -s -- --no-open
-
