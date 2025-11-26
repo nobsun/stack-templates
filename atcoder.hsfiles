@@ -93,7 +93,7 @@ case $old in
         ;;
 esac
 
-read -p "Use app/Main.hs instead of atcoder-cli template? (y/N): " cptmpl
+read -p "Use default app/Main.hs instead of atcoder-cli template? (y/N): " cptmpl
 
 case $cptmpl in
     [yY]*)
