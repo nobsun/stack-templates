@@ -93,13 +93,14 @@ case $old in
         ;;
 esac
 
-read -p "Copy Main.hs into atcoder-cli template (y/N): " cptmpl
+read -p "Use app/Main.hs instead of atcoder-cli template? (y/N): " cptmpl
 
 case $cptmpl in
     [yY]*)
         cp app/Main.hs $HOME/.config/atcoder-cli-nodejs/haskell/
         ;;
     *)
+        cp $HOME/.config/atcoder-cli-nodejs/haskell/Main.hs app/
         ;;
 esac
 
