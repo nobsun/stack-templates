@@ -70,15 +70,3 @@ source activate ## ユーティリティスクリプトの実行権限 ON ほか
 ```shell
 ./checking ## app/a/Main.hs のコンパイルと動作チェック
 ```
-
-### 問題Aを解くコード`app/a/Main.hs`の提出 -- 未確認
-
-**N.B.** コンテスト開催時間中のみCLIで提出可能
-
-```shell
-./submitting ## app/a/Main.hs の提出
-```
-
-## ToDo
-
-- `submitting` の動作確認
