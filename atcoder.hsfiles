@@ -340,8 +340,6 @@ stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 {-# START_FILE initializing #-}
 #!/bin/bash
 
-cp app/Main.hs ~/.config/atcoder-cli-nodejs/haskell/
-
 acc new {{name}}
 mv {{name}}/contest.acc.json ./
 
