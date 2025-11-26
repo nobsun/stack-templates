@@ -52,12 +52,14 @@ https://github.com/key-moon/aclogin
 ```shell
 stack new abc426 nobsun/atcoder ## 筆者の作成したテンプレートファイルの利用
 cd abc426
-source activate ## ユーティリティスクリプトの実行権限 ON ほか
+bash -e activate ## ユーティリティスクリプトの実行権限 ON ほか
 ./initializing  ## プロジェクトディレクトリの（再）構成、テスト用サンプルデータの取得
 ```
 
 #### 注意
-`initializing`スクリプトは内部で`setting`スクリプトを呼んでいます。`setting`スクリプトは、`implicit-hie`パッケージを**無断でインストール**し、`gen-hie`コマンドを`$HOME/.local/bin/`に設置します。
+`initializing`スクリプトは内部で`setting`スクリプトを呼んでいます。`setting`スクリプトは、`gen-hie`コマンドを使います。
+コマンドが見つからない場合は、`implicit-hie`パッケージを**無断でインストール**し、`gen-hie`コマンドを`$HOME/.local/bin/`に設置します。
+コマンドパスに`$HOME/.local/bin`が含まれていることを前提にしています。
 
 ### 問題A用の初期化
 
