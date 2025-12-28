@@ -74,7 +74,16 @@ ghcup set ghc 9.8.4
 ghcup set hls 2.10.0.0
 
 cp stack.yaml.atcoder stack.yaml
-cp app/Main.hs $HOME/.config/atcoder-cli-nodejs/haskell/
+
+read -p "Copy app/Main.hs into your atcoder-cli template (y/N): " cptmpl
+
+case $cptmpl in
+    [yY]*)
+        cp app/Main.hs $HOME/.config/atcoder-cli-nodejs/haskell/
+        ;;
+    *)
+        ;;
+esac
 
 stack build
 
@@ -87,6 +96,7 @@ stack build
 {-# LANGUAGE NPlusKPatterns #-}
 {-# LANGUAGE DataKinds, PolyKinds, NoStarIsType, TypeFamilyDependencies, UndecidableInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Xno-unused-imports #-}
 module Main where
 
 import Data.ByteString.Char8 qualified as B
@@ -109,6 +119,7 @@ import Data.IntSet qualified as IS
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Tree qualified as T
+import Data.Graph qualified as G
 import Data.Sequence qualified as Q
 import Data.Vector qualified as V
 
@@ -223,6 +234,7 @@ invalid msg = error $ msg ++ ", invalid input"
 
 {- End Bonsai -}
 
+
 {-# START_FILE app/zzz/add-entry/Main.hs #-}
 module Main where
 
@@ -316,9 +328,9 @@ stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
 acc new {{name}}
 mv {{name}}/contest.acc.json ./
 
-jq -r '.tasks[].id' ./contest.acc.json | while read tid; do
-  mv {{name}}/${tid: -1} app/
-  ./setting ${tid: -1}
+jq -r '.tasks[].directory.path' ./contest.acc.json | while read tid; do
+  mv {{name}}/${tid} app/
+  ./setting ${tid}
 done
 
 rmdir {{name}}
@@ -446,7 +458,7 @@ default-extensions:
 ghc-options:
 - -Wall
 - -Wno-unused-imports
-- -Wno-x-partial
+# - -Wno-x-partial
 
 library:
     source-dirs: []
